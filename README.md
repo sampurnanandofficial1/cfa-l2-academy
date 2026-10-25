@@ -13,14 +13,14 @@ A CFA Level II 2026 study dashboard for all ten topic areas, with integrated sou
 - Public, source-labeled notes and original questions; the visible navigation does not require uploading the source PDFs.
 - Question Builder for reviewing source questions, answer keys, steps, distractor explanations, and source references.
 - Integrated study notes derived from the supplied handwritten SSEI LM1 notes and the concepts represented in the supplemental Equity curriculum practice file, with inline `SSEI` or `Curriculum` labels.
-- The question bank currently contains 60 original, fully explained questions. The notes catalogue includes entries for the existing section guides and a set of example/exhibit synthesis notes. These are transformed study aids, not one-for-one reproductions of every source example, exhibit or end-of-module question. They are not copied verbatim from the source PDF.
+- The question bank currently contains 60 original, fully explained questions. The notes catalogue combines the supplied SSEI notes, summaries of each section guide, deeper teaching notes, and example/exhibit synthesis. Visual maps, memory hooks and illustrative graphs support recall. These are transformed study aids, not one-for-one reproductions of every source example, exhibit or end-of-module question. They are not copied verbatim from the source PDF.
 
 ## Important scope and data limits
 
 - The original PDFs are **not stored in this public repository** or bundled into the deployed site. The handwritten notes and practice-set themes have instead been interpreted into public, source-labeled study notes and original practice questions. The full question PDF is not republished verbatim.
 - PDF text extraction is performed in the browser. It can miss questions or scramble tables and line order. Imported candidates remain unverified until the learner checks them against the original pages.
 - This version does not automatically generate expert AI explanations from the whole book. It provides a source-grounded prompt builder and fields to add reviewed explanations.
-- The all-ten-subject status tracker and learner progress are stored in browser storage, not a secured remote database. The left navigation is subject-agnostic. Current content is populated for Equity Valuation; the other nine topic areas remain in the subject tracker until their source material is provided.
+- The all-ten-subject status tracker and learner progress are stored in browser storage, not a secured remote database. The left navigation is subject-agnostic and focuses on Overview, Learn, Practice, Formula & Visual Maps, Review, All Subjects and Settings. Current content is populated for Equity Valuation; the other nine topic areas remain in the subject tracker until their source material is provided.
 - Profiles and progress are stored in browser storage, not a secured remote database. The name selector is not authentication, progress does not sync across devices, and people sharing the same browser can switch profiles. Do not use it as a security boundary.
 - Do not commit the source book, bulk copyrighted question text, credentials, service-role keys, or privileged API keys.
 - For secure, separate accounts and cross-device synchronization, a supported backend (for example, Supabase) still needs to be configured with proper authentication and row-level security.
