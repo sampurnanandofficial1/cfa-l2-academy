@@ -87,6 +87,30 @@ const visibleText = () => window.document.getElementById('app').textContent || '
     assert(visibleText().includes('Smoke test note'), 'Notes form did not save a note.');
   }
 
+
+  click('[data-action="nav"][data-page="formulas"]');
+  click('[data-action="formula-to-note"]');
+  const afterFormula = JSON.parse(window.localStorage.getItem('cfa-equity-academy:v1'));
+  assert(afterFormula.profiles[afterFormula.activeProfile].notes.some(note => note.title === 'Gordon growth model'),
+    'Add formula to notes action did not persist a note.');
+
+  click('[data-action="nav"][data-page="itemset"]');
+  const itemSetQuestion = window.document.querySelector('[data-action="open-question"][data-qid]');
+  assert(itemSetQuestion, 'Item-set practice did not provide a working question entry.');
+  itemSetQuestion.click();
+  assert(window.document.querySelector('.question-heading'), 'Opening an item-set question did not open practice.');
+
+  click('[data-action="nav"][data-page="mock"]');
+  const mockForm = window.document.getElementById('mockForm');
+  assert(mockForm, 'Mock exam setup form did not render.');
+  mockForm.dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }));
+  assert(window.document.getElementById('examClock'), 'Starting a mock did not open the timed exam or start its clock.');
+  for (let i = 0; i < 9; i++) click('[data-action="exam-next"]');
+  click('[data-action="exam-finish"]');
+  assert(visibleText().includes('Question-by-question review'), 'Submitting the mock did not render the review/results screen.');
+  click('[data-action="new-mock"]');
+  assert(window.document.getElementById('mockForm'), 'Create another mock did not return to setup.');
+
   assert(runtimeErrors.length === 0, 'Runtime errors: ' + runtimeErrors.join(' | '));
   assert(consoleErrors.length === 0, 'DOM/browser errors: ' + consoleErrors.join(' | '));
   console.log('UI smoke test passed: startup, 15 navigation pages, practice answer submission, theme toggle, settings persistence, flashcards and notes.');
