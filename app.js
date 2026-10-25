@@ -565,7 +565,7 @@ function loadState() {
   return defaultState();
 }
 let state = loadState();
-let ui = {page:'dashboard',query:'',filterModule:'all',filterType:'all',filterStatus:'all',currentQuestion:'q1',selectedAnswer:null,constructedAnswer:'',constructedAssessmentSaved:false,answerShown:false,practiceStartedAt:Date.now(),practiceMode:false,noteSearch:'',sourcePages:[],sourcePageIndex:0,sourceSearch:'',sourceType:'all',sourceExpanded:null,studyModule:'m1',currentSubject:'equity',flashIndex:0,flashRevealed:false,exam:null,toastTimer:null};
+let ui = {page:'dashboard',query:'',filterModule:'all',filterType:'all',filterStatus:'all',currentQuestion:'q1',selectedAnswer:null,constructedAnswer:'',constructedAssessmentSaved:false,answerShown:false,practiceStartedAt:Date.now(),practiceMode:false,noteSearch:'',sourcePages:[],sourceBlockIndex:null,sourcePageIndex:0,sourceSearch:'',sourceType:'all',sourceExpanded:null,studyModule:'m1',currentSubject:'equity',flashIndex:0,flashRevealed:false,exam:null,toastTimer:null};
 let toastTimer = null;
 let examInterval = null;
 
@@ -904,14 +904,15 @@ function splitNumberedSourceBlocks(pages,moduleId,type,expectedCount) {
     const nextGroup=nextStart?groups.find(function(g){return g.firstIndex===nextStart.index;}):null;
     if(nextGroup)end=nextGroup.fromIndex;
     const bodyLines=lines.slice(start.index+1,end);
-    let body=[start.firstText].concat(bodyLines.map(function(x){return x.text;})).filter(Boolean).join('\n').trim();
+    const questionText=[start.firstText].concat(bodyLines.map(function(x){return x.text;})).filter(Boolean).join('\n').trim();
+    let body=questionText,context='',groupFrom=null,groupTo=null;
     const matchingGroup=groups.find(function(g){return start.num>=g.firstNum&&start.num<=g.lastNum&&g.firstIndex<=start.index;});
-    let context='';
-    if(matchingGroup)context=matchingGroup.context;
-    else if(start.num===1&&preamble&&!groups.some(function(g){return g.firstIndex===start.index;}))context=preamble;
+    if(matchingGroup){context=matchingGroup.context;groupFrom=matchingGroup.firstNum;groupTo=matchingGroup.lastNum;}
+    else if(start.num===1&&preamble&&!groups.some(function(g){return g.firstIndex===start.index;})){context=preamble;groupFrom=1;groupTo=Math.min(expectedCount,6);}
     if(context&&body.indexOf(context)<0)body=context+'\n\n'+body;
+    const range=groupFrom!=null?sourceRangeForQuestion(start.num,groupFrom,groupTo):sourceRangeForQuestion(start.num,1,expectedCount);
     const blockEndPage=bodyLines.length?bodyLines[bodyLines.length-1].page:start.page;
-    return {num:start.num,page:start.page,endPage:blockEndPage,text:body};
+    return {num:start.num,page:start.page,endPage:blockEndPage,text:body,questionText:questionText,passageText:context,sourceSetId:'source-'+moduleId+'-q'+range.from+'-'+range.to,sourceGroupFrom:range.from,sourceGroupTo:range.to,sourceSetTitle:'LM '+getModule(moduleId).no+' · Source item set (Questions '+range.from+'–'+range.to+')'};
   });
   return {blocks:blocks,expected:expectedCount,found:blocks.length,lines:lines.length,groups:groups.length};
 }
@@ -947,7 +948,7 @@ function buildBookQuestionCandidates(pages) {
     const byNumber={};solution.blocks.forEach(function(b){byNumber[b.num]=b;});
     let withOptions=0,withKey=0,constructed=0;
     practice.blocks.forEach(function(block){
-      const sol=byNumber[block.num];const parsed=parseSourceOptions(block.text);
+      const sol=byNumber[block.num];const parsed=parseSourceOptions(block.questionText||block.text);
       const key=sol?extractSolutionKey(sol.text):null;
       if(parsed.options.length>=2)withOptions++;else constructed++;
       if(key)withKey++;
@@ -959,7 +960,7 @@ function buildBookQuestionCandidates(pages) {
       candidates.push({
         id:'book-'+mod.id+'-q'+block.num,module:mod.id,topic:title||mod.title,type:parsed.options.length>=2?'Source MCQ':'Constructed response',difficulty:'Needs review',title:'LM '+mod.no+' · Q'+block.num+': '+(title||'Source question '+block.num),
         stem:parsed.stem||block.text,options:parsed.options,correct:key,responseType:parsed.options.length>=2?'mcq':'constructed',
-        sourceBookQuestion:true,bookImported:true,sourcePage:block.page===block.endPage?String(block.page):String(block.page)+'–'+String(block.endPage),
+        sourceBookQuestion:true,bookImported:true,sourceSetId:block.sourceSetId||null,sourceSetTitle:block.sourceSetTitle||'',sourceGroupFrom:block.sourceGroupFrom??null,sourceGroupTo:block.sourceGroupTo??null,sourcePage:block.page===block.endPage?String(block.page):String(block.page)+'–'+String(block.endPage),
         sourcePdfPage:block.page+10,sourceSolution:solutionText,verificationStatus:'Needs explanation review',
         explain:{
           intuition:'This question was extracted locally from the curriculum. The source solution is provided as a reference, but the first-principles explanation and distractor analysis still require review.',
@@ -1095,7 +1096,7 @@ async function importPDF(file) {
       pages.push({id:p.module+'-'+p.type.replace(/\W/g,'').toLowerCase()+'-'+p.printedPage,module:p.module,printedPage:p.printedPage,pdfPage:pdfPage,type:p.type,text:linesFromItems(text.items)});
       if(i%4===0) {const status=document.getElementById('importStatus'), percent=document.getElementById('importPercent'),bar=document.getElementById('importBar');if(status)status.textContent=ui.importStatus;if(percent)percent.textContent=ui.importPercent+'%';if(bar)bar.style.width=ui.importPercent+'%';await new Promise(function(resolve){setTimeout(resolve,0);});}
     }
-    await saveSourcePages(pages);ui.sourcePages=pages;ui.sourcePageIndex=0;
+    await saveSourcePages(pages);ui.sourcePages=pages;ui.sourceBlockIndex=null;ui.sourcePageIndex=0;
     const parsed=buildBookQuestionCandidates(pages);
     state.shared.customQuestions=(state.shared.customQuestions||[]).filter(function(q){return !q.bookImported;}).concat(parsed.questions);
     state.shared.inventoryStats=parsed.stats;
@@ -1242,7 +1243,7 @@ async function restoreBackup(file) {
 }
 (async function init(){
   if(state.theme==='light')document.body.classList.add('light-mode');
-  ui.sourcePages=await loadSourcePages();
+  ui.sourcePages=await loadSourcePages();ui.sourceBlockIndex=null;
   profile().lastVisit=new Date().toISOString();saveState();
   renderAppSafe();
 })();
