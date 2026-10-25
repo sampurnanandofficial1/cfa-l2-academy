@@ -13,7 +13,7 @@ A CFA Level II 2026 study dashboard for all ten topic areas, with integrated sou
 - Local PDF import: extracts source practice/solution page ranges into a browser-local page vault and creates question candidates where parsing is successful.
 - Question Builder for reviewing source questions, answer keys, steps, distractor explanations, and source references.
 - Integrated study notes derived from the supplied handwritten SSEI LM1 notes and the concepts represented in the supplemental Equity curriculum practice file, with inline `SSEI` or `Curriculum` labels.
-- 18 newly authored, fully explained Equity practice questions created from the supplemental practice-set themes. They are not copied verbatim from the source PDF.
+- Newly authored, fully explained Equity practice questions covering the learning outcomes, examples/exhibit themes and end-of-module problem skills; source questions are not copied verbatim. They are not copied verbatim from the source PDF.
 
 ## Important scope and data limits
 
@@ -41,7 +41,7 @@ The connected GitHub tool can update repository files but cannot change the repo
 
 The subject map follows the 2026 CFA Institute Level II topic outline: Quantitative Methods, Economics, Financial Statement Analysis, Corporate Issuers, Equity Valuation, Fixed Income, Derivatives, Alternative Investments, Portfolio Management, and Ethical and Professional Standards. See the [official 2026 Level II topic outlines](https://www.cfainstitute.org/sites/default/files/docs/programs/cfa-program/2026-l2-topics-combined.pdf).
 
-The handwritten LM1 concepts are labeled **SSEI** in the integrated Notes page. The supplemental practice-set themes are labeled **Curriculum** in notes and the Practice bank. The original 174-page question PDF is not reproduced in the public site; the added questions are newly authored and include worked explanations.
+The handwritten LM1 concepts are labeled **SSEI** in the integrated Notes page. The supplemental practice-set themes are labeled **Curriculum** in notes and the Practice bank. The original CFA Institute curriculum, exhibits and end-of-module questions are not reproduced verbatim in the public site. Instead, the notes summarize every topic guide, examples/exhibits are interpreted as study takeaways, and the practice bank provides original, fully explained questions.
 
 ## Local study data
 

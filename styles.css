@@ -344,3 +344,18 @@ td { color: #cfdae8; }
   .study-note-summary { gap:7px 8px; padding:12px; }
   .study-note-meta { font-size:9px; }
 }
+
+
+/* Clear passage/question separation for case-based item sets */
+.itemset-group-card { display:flex; flex-direction:column; gap:0; margin-bottom:18px; }
+.itemset-group-header { display:flex; align-items:center; justify-content:space-between; gap:15px; padding:0 0 15px; }
+.itemset-passage-block { background:var(--surface-2); border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:12px; padding:17px 18px; margin:0 0 16px; }
+.itemset-passage-label { font-size:9px; font-weight:900; letter-spacing:1.4px; color:var(--accent); margin-bottom:9px; }
+.itemset-passage-block h3 { font:800 15px Manrope,sans-serif; margin:0 0 10px; line-height:1.45; }
+.itemset-passage-block p { color:var(--text); font-size:12px; line-height:1.8; margin:8px 0; }
+.itemset-passage-hint { border-top:1px solid var(--border); margin-top:13px; padding-top:10px; font-size:10px; color:var(--muted); }
+.itemset-related-block { border-top:1px solid var(--border); padding-top:15px; }
+.itemset-related-header { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+.itemset-related-header h4 { font:800 12px Manrope,sans-serif; margin:0; }
+.practice-layout > .itemset-passage-block { grid-column:1 / -1; margin-bottom:0; }
+@media (max-width:600px) { .itemset-group-header { align-items:flex-start; flex-direction:column; } }
