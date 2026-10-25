@@ -229,6 +229,12 @@ const nav = page => click('.sidebar .nav-item[data-page="' + page + '"]');
   click('[data-action="nav"][data-page="notes"]');
   assert(window.document.querySelectorAll('.study-note-card').length >= 90,
     'The main Notes page should include all source-derived, deeper and illustration notes.');
+  assert(window.document.getElementById('notes-source-inventory'),
+    'Detailed Notes must include a source inventory section for examples, exhibits and EOC question ranges.');
+  assert(window.document.getElementById('notes-source-pages'),
+    'Detailed Notes must retain the local full curriculum source pages view.');
+  assert(window.document.querySelector('#notes-source-inventory')?.textContent.includes('Source not indexed'),
+    'When source text is not local, the inventory must report missing indexing instead of inventing source contents.');
   assert(window.document.querySelectorAll('.integrated-guide-card').length === 12,
     'Detailed Notes should include twelve expanded teaching guides.');
   assert(window.document.querySelectorAll('.unified-formula-card').length === 13,

@@ -644,3 +644,40 @@ td { color: #cfdae8; }
  .local-curriculum-page .study-note-meta { margin-left:auto; }
  .local-curriculum-page-body { padding:10px; }
 }
+
+
+/* Exact source item-set mapping and coverage index */
+.curriculum-coverage-strip { display:flex; align-items:center; flex-wrap:wrap; gap:8px 14px; margin:0 0 15px; padding:12px 14px; border:1px solid var(--border); border-radius:11px; background:var(--surface); color:var(--muted); font-size:10px; line-height:1.65; }
+.curriculum-coverage-strip strong { color:var(--text); font-size:11px; }
+.curriculum-coverage-strip span { display:inline-flex; align-items:center; gap:5px; }
+.curriculum-coverage-strip span::before { content:"•"; color:var(--accent); }
+.muted-coverage { align-items:flex-start; }
+.muted-coverage span { flex:1 1 420px; }
+.curriculum-inventory-stats { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; margin:0 0 14px; }
+.curriculum-inventory-stats>div { display:flex; flex-direction:column; gap:5px; min-width:0; border:1px solid var(--border); border-radius:10px; padding:12px; background:var(--surface); }
+.curriculum-inventory-stats strong { font:800 18px Manrope,sans-serif; letter-spacing:-.4px; }
+.curriculum-inventory-stats span { color:var(--muted); font-size:10px; line-height:1.5; }
+.curriculum-inventory-tools { display:grid; grid-template-columns:minmax(0,1fr) minmax(190px,260px); gap:9px; margin-bottom:12px; }
+.source-inventory-group { margin:10px 0; border:1px solid var(--border); border-radius:12px; background:var(--surface); overflow:hidden; }
+.source-inventory-group>summary { display:flex; align-items:center; gap:9px; padding:12px 14px; cursor:pointer; list-style:none; font:800 12px Manrope,sans-serif; }
+.source-inventory-group>summary::-webkit-details-marker { display:none; }
+.source-inventory-list { border-top:1px solid var(--border); padding:5px 12px 10px; }
+.source-inventory-row { display:flex; align-items:center; gap:11px; min-width:0; padding:10px 2px; border-bottom:1px solid var(--border); }
+.source-inventory-row:last-child { border-bottom:0; }
+.source-inventory-number { flex:0 0 44px; color:var(--accent); font:800 10px Manrope,sans-serif; }
+.source-inventory-main { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
+.source-inventory-main strong { color:var(--text); font:700 11px/1.5 Manrope,sans-serif; }
+.source-inventory-main small { color:var(--muted); font-size:10px; line-height:1.5; }
+.source-inventory-row .btn { flex:0 0 auto; }
+.itemset-source-ref { margin-top:12px; padding-top:9px; border-top:1px solid var(--border); color:var(--muted); font-size:10px; }
+.itemset-passage-block.passage-context-missing { border-style:dashed; }
+.itemset-questions-container .question-meta>span { overflow-wrap:anywhere; }
+@media(max-width:900px) { .curriculum-inventory-stats { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media(max-width:600px) {
+ .curriculum-inventory-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .curriculum-inventory-tools { grid-template-columns:1fr; }
+ .source-inventory-row { flex-wrap:wrap; }
+ .source-inventory-main { flex-basis:calc(100% - 70px); }
+ .source-inventory-row .btn { margin-left:55px; }
+ .curriculum-coverage-strip { align-items:flex-start; flex-direction:column; }
+}
