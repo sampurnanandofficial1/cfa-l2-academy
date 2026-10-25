@@ -1,6 +1,25 @@
 const fs = require('node:fs');
 const { JSDOM, VirtualConsole } = require('jsdom');
 
+const actionNames = [...new Set([...appSource.matchAll(/data-action=["']([^"']+)["']/g)].map(match => match[1]))];
+const handledActions = new Set([...appSource.matchAll(/\ba===['"]([^'"]+)['"]/g)].map(match => match[1]));
+for (const action of actionNames) {
+  if (!handledActions.has(action)) throw new Error('Rendered action has no click handler: ' + action);
+}
+const starterQuestionRows = appSource.split('\n').filter(line => /^\s*\{id:'q\d+'/.test(line));
+if (starterQuestionRows.length !== 16) throw new Error('Expected 16 starter questions; found ' + starterQuestionRows.length);
+for (const line of starterQuestionRows) {
+  const id = line.match(/id:'(q\d+)'/)?.[1];
+  const correct = line.match(/correct:'([A-Z])'/)?.[1];
+  const optionText = (line.match(/options:\[(.*?)\],correct:/) || [])[1] || '';
+  const options = [...optionText.matchAll(/key:'([A-Z])',text:'([^']*)'/g)].map(m => ({ key: m[1], text: m[2] }));
+  const rationaleText = (line.match(/rationales:\[(.*?)\],trap:/) || [])[1] || '';
+  const rationales = [...rationaleText.matchAll(/\{key:'([A-Z])',text:'([^']*)'\}/g)].map(m => ({ key: m[1], text: m[2] }));
+  if (!options.some(option => option.key === correct)) throw new Error(id + ': answer key has no matching option.');
+  const correctRationale = rationales.find(rationale => rationale.key === correct);
+  if (!correctRationale || !/^Correct\b/i.test(correctRationale.text)) throw new Error(id + ': correct answer rationale is missing or contradicts its key.');
+  if (rationales.some(rationale => rationale.key !== correct && /^Correct\b/i.test(rationale.text))) throw new Error(id + ': a distractor rationale is labelled correct.');
+}
 const html = fs.readFileSync('index.html', 'utf8');
 const appSource = fs.readFileSync('app.js', 'utf8');
 const virtualConsole = new VirtualConsole();

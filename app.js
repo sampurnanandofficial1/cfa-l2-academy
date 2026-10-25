@@ -168,6 +168,20 @@ function notify(message,error) {
   const node=document.createElement('div'); node.className='toast'; node.textContent=message; if(error)node.style.background='#48242b';
   document.body.appendChild(node); clearTimeout(toastTimer); toastTimer=setTimeout(function(){node.remove();},3500);
 }
+async function copyToClipboard(text) {
+  const value=String(text==null?'':text);
+  if(navigator.clipboard&&typeof navigator.clipboard.writeText==='function'){
+    try { await navigator.clipboard.writeText(value); return true; } catch(e) { /* Fall back to the legacy selection API. */ }
+  }
+  const field=document.createElement('textarea');
+  field.value=value;field.setAttribute('readonly','');field.style.position='fixed';field.style.opacity='0';field.style.pointerEvents='none';
+  document.body.appendChild(field);field.select();field.setSelectionRange(0,field.value.length);
+  let copied=false;
+  try { copied=!!(document.execCommand&&document.execCommand('copy')); } catch(e) { copied=false; }
+  field.remove();
+  if(!copied)throw new Error('Clipboard access was denied. Select and copy the text manually.');
+  return true;
+}
 function startStudy(mins) {
   profile().studyLog.push({at:new Date().toISOString(),minutes:mins||1}); saveState();
 }
@@ -563,7 +577,7 @@ function getWeakQuestions(p) {
 }
 function renderAppSafe() { try{renderApp();}catch(e){console.error(e);document.getElementById('app').innerHTML='<div style="padding:40px;color:#fff;font-family:system-ui"><h1>Dashboard could not render</h1><p>Please refresh the page. If the issue persists, export your local data if possible and report the console error.</p><pre>'+esc(e.stack||e.message||e)+'</pre></div>';}}
 function exportJSON(obj,filename) {
-  const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;a.click();URL.revokeObjectURL(a.href);
+  const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1000);
 }
 function buildQuestionTutorPrompt(title,stem,correct,source,solution) {
   return 'You are a precise CFA Level II Equity Valuation tutor. Use the learner-provided question and solution below as source material. Do not invent facts, an official answer, or page references. If a calculation or answer appears inconsistent, flag it explicitly and show the independent check. Distinguish source-supported statements from your own teaching example.\n\nTASK\nExplain this question much better than a bookish answer key. Teach the first principles and solve it so the learner can apply the method to a new problem.\n\nREQUIRED OUTPUT\n1. Restate the tested concept in plain language.\n2. Give an intuition-first explanation.\n3. List the relevant inputs and what is being asked.\n4. Show the formula, define variables and assumptions, then work through every calculation step.\n5. Explain the financial interpretation.\n6. For every answer choice, explain why it is correct or wrong, the misconception behind each distractor, and when a distractor would become plausible.\n7. Highlight question-specific exam traps and a memory aid.\n8. Create one original transfer question with different inputs and give its answer separately.\n9. List uncertainties and source references without guessing.\n\nQUESTION TITLE / TOPIC\n'+title+'\n\nQUESTION AND CHOICES\n'+stem+'\n\nANSWER GIVEN BY SOURCE (MAY BE UNKNOWN)\n'+(correct||'Not supplied')+'\n\nSOURCE LOCATION\n'+(source||'Not supplied')+'\n\nSOURCE SOLUTION OR LEARNER WORK\n'+(solution||'Not supplied')+'\n\nKeep the explanation mathematically rigorous, explicit, and pedagogically clear.';
@@ -641,8 +655,8 @@ function handleClick(e) {
   if(a==='clear-source'){if(confirm('Delete extracted source-page text from this browser? This does not delete the original PDF on your device.'))clearSourcePages().then(function(){ui.sourcePages=[];state.shared.sourceMeta=null;saveState();renderApp();notify('Local source text cleared');});return;}
   if(a==='export-source'){exportSource();return;}
   if(a==='export-data'){exportJSON({profileName:state.activeProfile,exportedAt:new Date().toISOString(),profile:profile()},'cfa-equity-'+state.activeProfile.toLowerCase().replace(/\s+/g,'-')+'-backup.json');notify('Learner backup exported');return;}
-  if(a==='copy-text'){navigator.clipboard.writeText(d.text||'').then(function(){notify('Copied to clipboard');}).catch(function(){notify('Clipboard access was denied. Select and copy the text manually.',true);});return;}
-  if(a==='copy-prompt'){const txt=document.getElementById('generatedTutorPrompt');if(txt){txt.select();navigator.clipboard.writeText(txt.value).then(function(){notify('Teaching prompt copied');}).catch(function(){notify('Select the prompt and copy it manually.',true);});}return;}
+  if(a==='copy-text'){copyToClipboard(d.text||'').then(function(){notify('Copied to clipboard');}).catch(function(err){notify(err.message||'Could not copy text. Select and copy it manually.',true);});return;}
+  if(a==='copy-prompt'){const txt=document.getElementById('generatedTutorPrompt');if(txt){copyToClipboard(txt.value).then(function(){notify('Teaching prompt copied');}).catch(function(err){notify(err.message||'Select the prompt and copy it manually.',true);});}return;}
   if(a==='save-constructed-review'){
     const q=getQuestion(d.qid),assessment=document.getElementById('constructedAssessment')?.value||'needs-review';
     const raw=document.getElementById('constructedAnswer')?.value;
