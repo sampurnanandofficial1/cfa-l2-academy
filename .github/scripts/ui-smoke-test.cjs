@@ -1,5 +1,4 @@
 const fs = require('node:fs');
-const vm = require('node:vm');
 const { JSDOM, VirtualConsole } = require('jsdom');
 
 const html = fs.readFileSync('index.html', 'utf8');
@@ -21,7 +20,7 @@ window.prompt = () => '10';
 const runtimeErrors = [];
 window.addEventListener('error', event => runtimeErrors.push(String(event.message || event.error)));
 window.addEventListener('unhandledrejection', event => runtimeErrors.push(String(event.reason)));
-vm.runInContext(appSource, dom.getInternalVMContext(), { filename: 'app.js' });
+window.eval(appSource);
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 const assert = (condition, message) => {
