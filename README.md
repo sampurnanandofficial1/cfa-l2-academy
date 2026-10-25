@@ -1,31 +1,42 @@
 # CFA Level II Equity Academy
 
-A private-first learning and practice platform for Sampurn Anand and Aaryani Dogra, built around an uploaded CFA Level II Equity curriculum.
+A local-first CFA Level II Equity Valuation learning dashboard for Sampurn Anand and Aaryani Dogra.
 
-## Project goals
+## Current application
 
-- Inventory the uploaded book's readings, learning objectives, examples, exhibits, and identifiable questions.
-- Provide original, clear, source-grounded explanations for each verified question, including step-by-step calculations and analysis of distractors.
-- Support learning, question-bank practice, item sets, mock tests, formulas, flashcards, revision, bookmarks, notes, and progress analytics.
-- Keep learner progress independent for Sampurn Anand and Aaryani Dogra.
-- Never fabricate answer keys, source references, question counts, or analytics.
+- Responsive study dashboard with light/dark theme.
+- Six learning modules, topic guides, and a searchable curriculum explorer.
+- Original in-app multiple-choice practice with worked solutions and distractor explanations.
+- Formula library, flashcards, revision queue, notes, bookmarks, mock exams, and performance analytics.
+- Independent learner profiles stored in the current browser.
+- Local PDF import: extracts source practice/solution page ranges into a browser-local page vault and creates question candidates where parsing is successful.
+- Question Builder for reviewing source questions, answer keys, steps, distractor explanations, and source references.
 
-## Content integrity
+## Important scope and data limits
 
-The uploaded book is a source for private learning. Do not commit the complete source book or publish bulk copyrighted content. Keep track of extraction and verification status, cite source locations when available, and flag ambiguous or unreadable material.
+- The uploaded source book is **not stored in this repository** and is not bundled into the deployed site.
+- PDF text extraction is performed in the browser. It can miss questions or scramble tables and line order. Imported candidates remain unverified until the learner checks them against the original pages.
+- This version does not automatically generate expert AI explanations from the whole book. It provides a source-grounded prompt builder and fields to add reviewed explanations.
+- Profiles and progress are stored in browser storage, not a secured remote database. The name selector is not authentication, progress does not sync across devices, and people sharing the same browser can switch profiles. Do not use it as a security boundary.
+- Do not commit the source book, bulk copyrighted question text, credentials, service-role keys, or privileged API keys.
+- For secure, separate accounts and cross-device synchronization, a supported backend (for example, Supabase) still needs to be configured with proper authentication and row-level security.
 
-## Architecture notes
+## Deploy with GitHub Pages
 
-The likely architecture is a React + TypeScript frontend with a persistent authenticated backend (for example, Supabase) if cross-device progress synchronization is needed. GitHub Pages can host only a static frontend; it does not supply authentication or a private database. Choose the final stack after inspecting the book and deployment requirements.
+A deployment workflow lives at [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml). It checks JavaScript syntax, prepares a static artifact, and deploys to GitHub Pages.
 
-Never put secrets, service-role keys, or privileged API keys in client-side code or committed files.
+One-time repository setup is required before the first successful deployment:
 
-## Initial status
+1. Open [Settings → Pages](https://github.com/sampurnanandofficial1/cfa-l2-academy/settings/pages).
+2. Under **Build and deployment → Source**, select **GitHub Actions**.
+3. Return to the [Actions workflow](https://github.com/sampurnanandofficial1/cfa-l2-academy/actions). Pushes to `main` deploy automatically; you can also run the workflow manually.
 
-- Repository created and accessible.
-- Default branch: `main`.
-- Curriculum file: not yet uploaded.
-- Application: not yet implemented.
-- Deployment: not yet configured.
+The connected GitHub tool can update repository files but cannot change the repository’s Pages setting directly. The Pages workflow will fail at “Configure Pages” until the one-time setting above is enabled. Private-repository Pages availability also depends on the GitHub plan.
 
-See `PROJECT_BRIEF.md` for the implementation scope and acceptance criteria.
+## Local study data
+
+The app stores learner attempts and notes in this browser's localStorage, and extracted source pages in IndexedDB. Use **Profile & Settings → Export active learner JSON** to back up progress before clearing browser data or changing devices. The source page vault has a separate export.
+
+## Curriculum source
+
+The curriculum outline and printed-page mappings are based on the CFA Program Curriculum 2026 Level II Equity Valuation volume supplied for this study project. Extraction counts are displayed as candidates, not as verified question totals.
