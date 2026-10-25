@@ -77,6 +77,7 @@ const visibleText = () => window.document.getElementById('app').textContent || '
   }
 
 
+  click('[data-action="nav"][data-page="dashboard"]');
   assert(visibleText().includes('One dashboard. All 10 CFA Level II subjects.'), 'Dashboard should identify the all-subject hub.');
   assert(!window.document.querySelector('[data-action="nav"][data-page="resources"]'), 'The standalone SSEI resource navigation should be removed.');
   click('[data-action="nav"][data-page="subjects"]');
