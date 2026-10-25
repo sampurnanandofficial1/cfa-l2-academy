@@ -191,25 +191,39 @@ const nav = page => click('.sidebar .nav-item[data-page="' + page + '"]');
   click('[data-action="open-question"][data-qid]');
   assert(window.document.querySelector('.question-heading'), 'Opening an item-set question did not open the practice view.');
   assert(window.document.querySelector('.practice-layout'), 'Item-set question should open the answer workspace.');
+  // Reopen a separate browser session with existing imported-question data, as a returning learner would.
   const importedDemo = [
     {id:'book-m1-q1',module:'m1',topic:'Perceived mispricing',type:'Source MCQ',difficulty:'Needs review',title:'LM 1 · Q1: perceived mispricing',stem:'Which gap is relevant to an active manager?',options:[{key:'A',text:'Price and estimate'},{key:'B',text:'True intrinsic value and price'},{key:'C',text:'Estimate and true value'}],correct:'B',sourceBookQuestion:true,bookImported:true,sourcePage:'41',sourceLabel:'Curriculum',verificationStatus:'Needs explanation review'},
     {id:'book-m1-q2',module:'m1',topic:'Measures of value',type:'Source MCQ',difficulty:'Needs review',title:'LM 1 · Q2: analyst might ignore?',stem:'With respect to Statements 3 and 4, which measure of value would the distressed securities fund’s analyst consider that a core equity fund analyst might ignore?',options:[{key:'A',text:'Fair value'},{key:'B',text:'Liquidation value'},{key:'C',text:'Fair market value'}],correct:'B',sourceBookQuestion:true,bookImported:true,sourcePage:'42',sourceLabel:'Curriculum',verificationStatus:'Needs explanation review'},
     {id:'book-m1-q3',module:'m1',topic:'Going concern value',type:'Source MCQ',difficulty:'Needs review',title:'LM 1 · Q3: going concern value',stem:'Which value premise best suits a core fund focused on future operating cash flow?',options:[{key:'A',text:'Liquidation value'},{key:'B',text:'Investment value'},{key:'C',text:'Going-concern value'}],correct:'C',sourceBookQuestion:true,bookImported:true,sourcePage:'42',sourceLabel:'Curriculum',verificationStatus:'Needs explanation review'},
     {id:'book-m1-q4',module:'m1',topic:'Market expectations',type:'Source MCQ',difficulty:'Needs review',title:'LM 1 · Q4: extract market expectations',stem:'What can an analyst infer by comparing a valuation model with market price?',options:[{key:'A',text:'Market-implied expectations'},{key:'B',text:'Book depreciation'},{key:'C',text:'Only liquidation proceeds'}],correct:'A',sourceBookQuestion:true,bookImported:true,sourcePage:'42',sourceLabel:'Curriculum',verificationStatus:'Needs explanation review'}
   ];
-  window.eval('state.shared.customQuestions = '+JSON.stringify(importedDemo)+'; ui.sourcePages=[]; ui.sourceBlockIndex=null; ui.page="questions"; ui.practiceMode=false; saveState(); renderApp();');
-  const sourceSet = [...window.document.querySelectorAll('.question-set-card')].find(card => card.textContent.includes('Source item set A'));
-  assert(sourceSet, 'An imported LM1 source question without a stored set ID must be grouped into Source item set A.');
-  assert(sourceSet.querySelectorAll('.itemset-questions-container .question-row').length === 4,
-    'Imported LM1 Questions 1–4 should appear together in one set.');
-  assert(sourceSet.querySelector('.itemset-passage-block')?.textContent.includes('Global-Guardian Capital'),
-    'Imported LM1 Questions 1–4 should show the shared Global-Guardian passage fallback.');
-  click('[data-action="open-question"][data-qid="book-m1-q2"]');
-  assert(window.document.querySelector('.practice-layout .itemset-passage-block')?.textContent.includes('financially distressed'),
-    'The reported LM1 Q2 failure must show its shared passage when opened directly.');
-  assert(window.document.querySelectorAll('.set-question-link').length === 4,
-    'The source Q2 view should allow navigation among its four linked questions.');
-
+  const emptyProfile = name => ({name,dailyGoal:45,attempts:[],bookmarks:[],notes:[],flashcardScores:{},studyLog:[],confidence:{},topicStatus:{},lastVisit:null});
+  const seededState = {version:'1.0.0',activeProfile:'Sampurn Anand',theme:'dark',profiles:{'Sampurn Anand':emptyProfile('Sampurn Anand'),'Aaryani Dogra':emptyProfile('Aaryani Dogra')},shared:{customQuestions:importedDemo,sourceMeta:null}};
+  const sourceDom = new JSDOM(html,{url:'https://academy.example.test/cfa-l2-academy/source-import-check',runScripts:'outside-only',pretendToBeVisual:true,virtualConsole:new VirtualConsole()});
+  sourceDom.window.scrollTo=()=>{};
+  sourceDom.window.confirm=()=>true;
+  sourceDom.window.localStorage.setItem('cfa-equity-academy:v1',JSON.stringify(seededState));
+  const sourceErrors=[];
+  sourceDom.window.addEventListener('error',event=>sourceErrors.push(String(event.message||event.error)));
+  sourceDom.window.eval(appSource);
+  await wait(80);
+  const sourceNav=page=>{const node=sourceDom.window.document.querySelector('.sidebar .nav-item[data-page="'+page+'"]');assert(node,'Source-session navigation missing: '+page);node.click();};
+  sourceNav('practice');
+  sourceDom.window.document.querySelector('[data-action="nav"][data-page="questions"]').click();
+  const sourceSet=[...sourceDom.window.document.querySelectorAll('.question-set-card')].find(card=>card.textContent.includes('Source item set A'));
+  assert(sourceSet,'An imported LM1 source question without a stored set ID must be grouped into Source item set A.');
+  assert(sourceSet.querySelectorAll('.itemset-questions-container .question-row').length===4,'Imported LM1 Questions 1–4 should appear together in one set.');
+  assert(sourceSet.querySelector('.itemset-passage-block')?.textContent.includes('Global-Guardian Capital'),'Imported LM1 Questions 1–4 should show the shared Global-Guardian passage fallback.');
+  sourceSet.querySelector('[data-action="open-question"][data-qid="book-m1-q2"]').click();
+  const sourcePassage=sourceDom.window.document.querySelector('.content .itemset-passage-block');
+  const sourceLayout=sourceDom.window.document.querySelector('.practice-layout');
+  assert(sourcePassage?.textContent.includes('financially distressed'),'The reported LM1 Q2 failure must show its shared passage when opened directly.');
+  assert(sourceLayout&&(sourcePassage.compareDocumentPosition(sourceLayout)&sourceDom.window.Node.DOCUMENT_POSITION_FOLLOWING),'The Q2 passage must be a separate container before the question layout.');
+  assert(sourceDom.window.document.querySelectorAll('.set-question-link').length===4,'The source Q2 view should allow navigation among its four linked questions.');
+  assert(sourceDom.window.document.querySelector('.question-stem')?.textContent.includes('Statements 3 and 4'),'The question stem should remain separate from the shared passage.');
+  assert(sourceErrors.length===0,'Source-session runtime errors: '+sourceErrors.join(' | '));
+  sourceDom.window.close();
 
   nav('practice');
   click('[data-action="nav"][data-page="mock"]');
