@@ -671,7 +671,7 @@ function renderQuestionBank() {
 
 function renderItemSet() {
   const groups=groupQuestionsIntoItemSets(questions());
-  return sectionHeader('ITEM SETS','Passages first, questions second','Each item set contains two separate containers. The built-in bank is grouped into sets of four to six questions; imported sets use source question ranges and recovered shared context where available.')+
+  return sectionHeader('ITEM SETS','Passages first, questions second','Each verified curriculum item set contains the source passage and its original question range. Questions whose passage cannot be verified remain separate and are clearly marked; the bank never invents a substitute case.')+
   '<div class="question-bank-summary"><span>'+groups.length+' item sets · '+questions().length+' questions</span><span>Select any linked question to open the set’s passage and navigator.</span></div>'+
   '<div class="question-set-grid">'+groups.map(function(g,i){return renderItemSetGroupCard(g,i,false);}).join('')+'</div>';
 }

@@ -352,7 +352,7 @@ const nav = page => click('.sidebar .nav-item[data-page="' + page + '"]');
   assert(sourceQ1Card,'An imported LM1 source question should remain visible if source pages are not yet cached.');
   assert(sourceQ1Card.querySelectorAll('.itemset-questions-container .question-row').length===1,
     'An imported question without a verified source group must remain standalone.');
-  assert(sourceQ1Card.querySelector('.itemset-passage-block')?.textContent.includes('STANDALONE QUESTION CONTEXT'),
+  assert(sourceQ1Card.querySelector('.itemset-passage-block')?.textContent.includes('SOURCE QUESTION · PASSAGE NOT VERIFIED'),
     'Missing shared passage must be clearly identified rather than guessed.');
   assert(!sourceQ1Card.querySelector('.itemset-passage-block')?.textContent.includes('Global-Guardian'),
     'A passage must not be inferred from the question number or topic.');
@@ -361,7 +361,7 @@ const nav = page => click('.sidebar .nav-item[data-page="' + page + '"]');
   sourceQ2Card.querySelector('[data-action="open-question"][data-qid="book-m1-q2"]').click();
   const sourcePassage=sourceDom.window.document.querySelector('.content .itemset-passage-block');
   const sourceLayout=sourceDom.window.document.querySelector('.practice-layout');
-  assert(sourcePassage?.textContent.includes('STANDALONE QUESTION CONTEXT'),'Q2 without source-page cache must not receive a substitute passage.');
+  assert(sourcePassage?.textContent.includes('SOURCE QUESTION · PASSAGE NOT VERIFIED'),'Q2 without source-page cache must not receive a substitute passage.');
   assert(!sourcePassage?.textContent.includes('Global-Guardian'),'Q2 must never be mapped to the unrelated Q1–8 passage without source extraction.');
   assert(sourceLayout&&(sourcePassage.compareDocumentPosition(sourceLayout)&sourceDom.window.Node.DOCUMENT_POSITION_FOLLOWING),'The context container must appear separately before the question workspace.');
   assert(sourceDom.window.document.querySelectorAll('.set-question-link').length===1,'Unmapped standalone Q2 must not claim unrelated sibling questions.');
@@ -390,25 +390,28 @@ const nav = page => click('.sidebar .nav-item[data-page="' + page + '"]');
   await wait(80);
   rangeDom.window.document.querySelector('.sidebar .nav-item[data-page="practice"]').click();
   rangeDom.window.document.querySelector('[data-action="nav"][data-page="questions"]').click();
-  const rangeCard=[...rangeDom.window.document.querySelectorAll('.question-set-card')].find(card=>card.textContent.includes('Source item set (Questions 1–8)'));
-  assert(rangeCard,'Corrected source metadata must render the original Questions 1–8 item set.');
-  assert(rangeCard.querySelectorAll('.itemset-questions-container .question-row').length===8,
-    'All eight questions named by the source range must appear together.');
-  assert(rangeCard.querySelector('.itemset-passage-block')?.textContent.includes('SHARED PASSAGE UNAVAILABLE'),
-    'Without local source pages, the app must report missing passage text rather than guess.');
-  assert(!rangeCard.querySelector('.itemset-passage-block')?.textContent.includes('Global-Guardian'),
-    'An unavailable passage must never be replaced with an unrelated or generic case.');
+  const unverifiedRangeCards=[...rangeDom.window.document.querySelectorAll('.question-set-card')].filter(card=>card.textContent.includes('mapped case question'));
+  assert(unverifiedRangeCards.length===8,
+    'A persisted range mapping must not be trusted unless the source pages re-verify its shared passage.');
+  assert(unverifiedRangeCards.every(card=>card.querySelectorAll('.itemset-questions-container .question-row').length===1),
+    'Without the current source archive, each imported question must remain a separate unresolved item.');
+  assert(unverifiedRangeCards.every(card=>card.querySelector('.itemset-passage-block')?.textContent.includes('SOURCE QUESTION · PASSAGE NOT VERIFIED')),
+    'Unverified imported questions must be visibly flagged instead of receiving a substitute passage.');
+  assert(unverifiedRangeCards.every(card=>!card.querySelector('.itemset-passage-block')?.textContent.includes('Global-Guardian')),
+    'A source-range record without passage text must not inherit a guessed or unrelated passage.');
   const questionSearch=rangeDom.window.document.getElementById('questionSearch');
   questionSearch.value='Unique stem token 4';
   questionSearch.dispatchEvent(new rangeDom.window.Event('input',{bubbles:true}));
-  const filteredRangeCard=[...rangeDom.window.document.querySelectorAll('.question-set-card')].find(card=>card.textContent.includes('Source item set (Questions 1–8)'));
-  assert(filteredRangeCard&&filteredRangeCard.querySelectorAll('.itemset-questions-container .question-row').length===8,
-    'Filtering a single question must keep all eight questions in the matching item set.');
+  const filteredRangeCards=[...rangeDom.window.document.querySelectorAll('.question-set-card')].filter(card=>card.textContent.includes('mapped case question'));
+  assert(filteredRangeCards.length===1&&filteredRangeCards[0].textContent.includes('Q4: mapped case question'),
+    'Filtering for one question should show that unresolved question only when no verified source set exists.');
+  assert(filteredRangeCards[0].querySelectorAll('.itemset-questions-container .question-row').length===1,
+    'An unverified question must not pull unrelated siblings into its display.');
   assert(rangeDom.window.document.querySelector('.question-bank-summary')?.textContent.includes('1 questions match filters'),
-    'The bank must distinguish one filter match from the eight sibling questions displayed.');
-  filteredRangeCard.querySelector('[data-action="open-question"][data-qid="verified-map-q4"]').click();
-  assert(rangeDom.window.document.querySelectorAll('.set-question-link').length===8,
-    'Question navigation must follow the full eight-question source range.');
+    'The bank must distinguish a single filter match from total questions available.');
+  filteredRangeCards[0].querySelector('[data-action="open-question"][data-qid="verified-map-q4"]').click();
+  assert(rangeDom.window.document.querySelectorAll('.set-question-link').length===1,
+    'Navigation for an unresolved question must not claim unrelated sibling questions.');
   assert(rangeErrors.length===0,'Source-range UI errors: '+rangeErrors.join(' | '));
   rangeDom.window.close();
 
