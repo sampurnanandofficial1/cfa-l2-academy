@@ -392,6 +392,119 @@ function renderVignettePassage(id) {
   return '<section class="itemset-passage-block"><div class="itemset-passage-label">PASSAGE / CASE FACTS · '+esc(v.source)+'</div><h3>'+esc(v.title)+'</h3>'+v.paragraphs.map(function(p){return '<p>'+esc(p)+'</p>';}).join('')+'<div class="itemset-passage-hint">Read this passage and its assumptions first. The related questions are listed separately below.</div></section>';
 }
 
+
+const QUESTION_SET_DEFINITIONS = [
+ {id:'set-framework',order:1,module:'m1',title:'Valuation foundations and model selection',passageId:'framework-and-model-selection',source:'Curriculum',questionIds:['q29','q32','q34','q35','q36']},
+ {id:'set-ddm-stable',order:2,module:'m2',title:'Stable-growth DDM and sustainable growth',passageId:'ddm-stable-growth',source:'Curriculum',questionIds:['q1','q2','q12','q20','q22']},
+ {id:'set-ddm-transition',order:3,module:'m2',title:'Dividend growth transitions and payout',passageId:'ddm-growth-and-payout',source:'Curriculum',questionIds:['q5','q21','q37','q38','q39','q59']},
+ {id:'set-fcf-bridge',order:4,module:'m3',title:'Free-cash-flow construction and operating risk',passageId:'fcf-bridge',source:'Curriculum',questionIds:['q3','q4','q17','q18','q40','q44']},
+ {id:'set-fcf-terminal',order:5,module:'m3',title:'Terminal value, financing and equity bridge',passageId:'fcf-terminal-and-claims',source:'Curriculum',questionIds:['q13','q19','q30','q41','q42','q43']},
+ {id:'set-fundamental-multiples',order:6,module:'m4',title:'Fundamental and peer-based equity multiples',passageId:'northstar',source:'Curriculum',questionIds:['q6','q7','q14','q15','q16','q31']},
+ {id:'set-multiple-comparison',order:7,module:'m4',title:'Multiple comparability, cycle effects and accounting quality',passageId:'multiple-comparison',source:'Curriculum',questionIds:['q23','q24','q45','q46','q47','q48']},
+ {id:'set-ri-basics',order:8,module:'m5',title:'Residual income and clean-surplus foundations',passageId:'residual-income-review',source:'Curriculum',questionIds:['q8','q9','q25','q26','q27']},
+ {id:'set-ri-accounting',order:9,module:'m5',title:'Residual income, accounting adjustments and model choice',passageId:'residual-income-accounting',source:'Curriculum',questionIds:['q49','q50','q51','q52','q60']},
+ {id:'set-private-normalization',order:10,module:'m6',title:'Private-company normalization, risk and ownership discounts',passageId:'private-company-review',source:'Curriculum',questionIds:['q10','q11','q28','q53','q54','q55']},
+ {id:'set-private-methods',order:11,module:'m6',title:'Private-company methods and uncertainty',passageId:'private-method-selection',source:'Curriculum',questionIds:['q33','q56','q57','q58']}
+];
+const SOURCE_ITEM_SET_DEFINITIONS = [
+ {id:'source-m1-q1-4',order:-20,module:'m1',title:'LM 1 · Source item set A (Questions 1–4)',source:'Curriculum',sourceFrom:1,sourceTo:4,passageId:'lm1-valuation-foundations'},
+ {id:'source-m1-q5-8',order:-19,module:'m1',title:'LM 1 · Source item set B (Questions 5–8)',source:'Curriculum',sourceFrom:5,sourceTo:8,passageId:'lm1-valuation-foundations'}
+];
+const QUESTION_SET_BY_QID = {};
+QUESTION_SET_DEFINITIONS.forEach(function(set){set.questionIds.forEach(function(id){QUESTION_SET_BY_QID[id]=set;});});
+function sourceQuestionNumber(q) {
+  const id=String(q&&q.id||''),title=String(q&&q.title||'');
+  const byId=id.match(/(?:^|-)q(\d+)(?:$|-)/i),byTitle=title.match(/\bQ\s*(\d+)\b/i);
+  return byId?Number(byId[1]):(byTitle?Number(byTitle[1]):null);
+}
+function sourceQuestionRanges(first,last) {
+  const count=last-first+1;
+  if(count<=6)return [{from:first,to:last}];
+  const chunks=Math.ceil(count/6),base=Math.floor(count/chunks),remainder=count%chunks,result=[];
+  let cursor=first;
+  for(let i=0;i<chunks;i++){const size=base+(i<remainder?1:0);result.push({from:cursor,to:cursor+size-1});cursor+=size;}
+  return result;
+}
+function sourceRangeForQuestion(questionNo,first,last) {
+  const range=sourceQuestionRanges(first,last).find(function(r){return questionNo>=r.from&&questionNo<=r.to;});
+  return range||{from:first,to:last};
+}
+function buildSourceQuestionBlockIndex() {
+  if(ui.sourceBlockIndex)return ui.sourceBlockIndex;
+  const idx={};
+  MODULES.forEach(function(mod){
+    const parsed=splitNumberedSourceBlocks(ui.sourcePages||[],mod.id,'Practice problems',mod.questionCount||0);
+    parsed.blocks.forEach(function(block){idx[mod.id+':'+block.num]=block;});
+  });
+  ui.sourceBlockIndex=idx;
+  return idx;
+}
+function storedSourceBlockForQuestion(q) {
+  const n=sourceQuestionNumber(q);
+  if(!q||!n||!q.module)return null;
+  return buildSourceQuestionBlockIndex()[q.module+':'+n]||null;
+}
+function getQuestionSet(q) {
+  if(!q)return QUESTION_SET_DEFINITIONS[0];
+  if(QUESTION_SET_BY_QID[q.id])return QUESTION_SET_BY_QID[q.id];
+  if(q.itemSetId&&q.sourcePassage)return {id:q.itemSetId,order:300,module:q.module,title:q.itemSetTitle||'Custom source item set',source:q.sourceLabel||'Curriculum',passageText:q.sourcePassage};
+  if(q.sourceBookQuestion||q.bookImported) {
+    const n=sourceQuestionNumber(q),block=storedSourceBlockForQuestion(q);
+    const setId=q.sourceSetId||(block&&block.sourceSetId);
+    const known=SOURCE_ITEM_SET_DEFINITIONS.find(function(s){return s.id===setId;});
+    if(known)return known;
+    if(block&&block.sourceSetId)return {id:block.sourceSetId,order:100+getModule(q.module).no+(block.sourceGroupFrom||block.num)/100,module:q.module,title:block.sourceSetTitle||('LM '+getModule(q.module).no+' · Source questions '+block.sourceGroupFrom+'–'+block.sourceGroupTo),source:'Curriculum',sourceFrom:block.sourceGroupFrom,sourceTo:block.sourceGroupTo,sourcePassageAvailable:!!block.passageText};
+    if(q.module==='m1'&&n&&n<=8)return SOURCE_ITEM_SET_DEFINITIONS.find(function(s){return n<=4?s.id==='source-m1-q1-4':s.id==='source-m1-q5-8';});
+    const mod=getModule(q.module),fallbackN=n||1,range=sourceRangeForQuestion(fallbackN,1,mod.questionCount||fallbackN);
+    return {id:'source-'+q.module+'-q'+range.from+'-'+range.to,order:100+mod.no+range.from/100,module:q.module,title:'LM '+mod.no+' · Source questions '+range.from+'–'+range.to,source:'Curriculum',sourceFrom:range.from,sourceTo:range.to,contextMissing:true};
+  }
+  if(q.vignetteId) {
+    const v=VIGNETTES[q.vignetteId];
+    return {id:q.vignetteId,order:400,module:q.module,title:(v&&v.title)||q.vignetteTitle||q.vignetteId,source:(v&&v.source)||q.sourceLabel||'Curriculum',passageId:q.vignetteId,passageText:q.vignetteSummary||''};
+  }
+  const mod=getModule(q.module),slug=String(q.topic||q.title||'general').toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,30);
+  return {id:'unmapped-'+q.module+'-'+slug,order:500+mod.no,module:q.module,title:'LM '+mod.no+' · '+(q.topic||q.title||'Question context'),source:q.sourceLabel||'Curriculum',passageText:q.sourcePassage||'',contextMissing:!q.sourcePassage};
+}
+function getStoredPassageForSet(set,question) {
+  if(!set||set.id.indexOf('source-')!==0)return '';
+  const index=buildSourceQuestionBlockIndex(),all=Object.keys(index).map(function(key){return index[key];});
+  const block=all.find(function(b){return b.sourceSetId===set.id&&!!b.passageText;});
+  if(block)return block.passageText;
+  const n=sourceQuestionNumber(question),candidate=n&&question?index[question.module+':'+n]:null;
+  return candidate&&candidate.passageText?candidate.passageText:'';
+}
+function renderQuestionSetPassage(set,question) {
+  const stored=getStoredPassageForSet(set,question);
+  let title=set.title||'Item set',source=set.source||'Curriculum',paragraphs=[];
+  if(stored){source='Imported curriculum · local passage';paragraphs=String(stored).split(/\n\s*\n/).map(function(x){return x.trim();}).filter(Boolean);}
+  else if(set.passageId&&VIGNETTES[set.passageId]){const v=VIGNETTES[set.passageId];title=v.title||title;source=v.source||source;paragraphs=v.paragraphs||[];}
+  else if(set.passageText)paragraphs=String(set.passageText).split(/\n\s*\n/).map(function(x){return x.trim();}).filter(Boolean);
+  else if(question&&question.vignetteSummary)paragraphs=[question.vignetteSummary];
+  const missing=!paragraphs.length;
+  return '<section class="itemset-passage-block '+(missing?'passage-context-missing':'')+'"><div class="itemset-passage-label">PASSAGE / CASE FACTS · '+esc(source)+'</div><h3>'+esc(title)+'</h3>'+
+    (paragraphs.length?paragraphs.map(function(p){return '<p>'+esc(p)+'</p>';}).join(''):'<p>No shared passage was found in the saved question or this browser’s source-page archive. The question stem remains visible below. Check the cited source page and adjacent pages to recover its case context.</p>')+
+    '<div class="itemset-passage-hint">'+(stored?'Recovered from source pages stored locally in this browser; the original PDF and extracted passage are not embedded in the public website.':'Read this case context first. The specific question and its answer choices are in the separate questions container.')+'</div></section>';
+}
+function groupQuestionsIntoItemSets(list) {
+  const groups=new Map();
+  list.forEach(function(q){const set=getQuestionSet(q);if(!groups.has(set.id))groups.set(set.id,{set:set,questions:[]});groups.get(set.id).questions.push(q);});
+  return Array.from(groups.values()).map(function(g){
+    const order=g.set.questionIds||[];
+    g.questions.sort(function(a,b){return order.length?order.indexOf(a.id)-order.indexOf(b.id):(sourceQuestionNumber(a)||99999)-(sourceQuestionNumber(b)||99999);});
+    return g;
+  }).sort(function(a,b){return (a.set.order??999)-(b.set.order??999)||String(a.set.title).localeCompare(String(b.set.title));});
+}
+function renderItemSetGroupCard(group,index,filtered) {
+  const set=group.set,items=group.questions,first=items[0],expected=(set.questionIds&&set.questionIds.length)||(set.sourceFrom!=null&&set.sourceTo!=null?set.sourceTo-set.sourceFrom+1:items.length);
+  const subtitle=items.length!==expected?items.length+' of '+expected+' questions currently available or matching filters.':'Read the shared passage first, then navigate the linked questions.';
+  return '<article class="card question-set-card"><div class="itemset-group-header"><div><div class="eyebrow">ITEM SET '+String(index+1).padStart(2,'0')+' · LM '+getModule(set.module).no+' · '+expected+' LINKED QUESTIONS</div><h3 class="card-title">'+esc(set.title)+'</h3><div class="card-subtitle">'+esc(subtitle)+'</div></div><button class="btn small" data-action="open-question" data-qid="'+esc(first.id)+'">Start set →</button></div>'+
+    '<div class="itemset-two-pane">'+renderQuestionSetPassage(set,first)+'<section class="itemset-questions-container"><div class="itemset-related-header"><div><div class="itemset-passage-label">QUESTIONS IN THIS SET</div><h4>Related questions</h4></div><span class="badge blue">'+items.length+(items.length!==expected?' / '+expected:'')+'</span></div><div class="question-list">'+items.map(function(q,i){const s=questionStatus(profile(),q);return '<div class="question-row" data-action="open-question" data-qid="'+esc(q.id)+'"><div class="question-id">'+String(i+1).padStart(2,'0')+'</div><div class="question-content"><div class="question-title">'+esc(q.title)+'</div><div class="question-meta"><span>'+esc(getModule(q.module).title)+'</span><span>· '+esc(q.topic||q.type)+'</span><span class="badge muted">'+esc(q.sourceLabel||'Curriculum')+'</span>'+(q.sourceBookQuestion?'<span class="badge amber">'+esc(q.difficulty||'Needs review')+'</span>':'')+'</div></div><div class="question-end"><span class="badge '+(s==='correct'?'green':s==='incorrect'?'red':'muted')+'">'+(s==='correct'?'Correct':s==='incorrect'?'Review':'Open')+'</span><span>↗</span></div></div>';}).join('')+'</div></section></div></article>';
+}
+function renderSetQuestionNavigator(set,list,currentId) {
+  const idx=list.findIndex(function(q){return q.id===currentId;});
+  return '<div class="card side-card set-question-navigator"><div class="card-header"><div><h3 class="card-title">Questions in this set</h3><div class="card-subtitle">'+esc(set.title)+' · '+(idx+1)+' of '+list.length+'</div></div><span class="badge blue">'+list.length+' items</span></div><div class="set-question-links">'+list.map(function(q,i){return '<button class="set-question-link '+(q.id===currentId?'active':'')+'" data-action="open-question" data-qid="'+esc(q.id)+'"><span class="set-question-number">'+String(i+1).padStart(2,'0')+'</span><span class="set-question-link-text">'+esc(q.title)+'</span>'+(q.id===currentId?'<span aria-hidden="true">●</span>':'')+'</button>';}).join('')+'</div><div class="set-question-controls"><button class="btn secondary small" data-action="previous-question" '+(idx<=0?'disabled':'')+'>← Previous</button><button class="btn small" data-action="next-question" '+(idx>=list.length-1?'disabled':'')+'>Next →</button></div></div>';
+}
+
 const FORMULAS = [
  {name:'Gordon growth model',formula:'P0 = D1 / (r − g)',topic:'Discounted Dividend Valuation',meaning:'Values a stable perpetual dividend stream. Use next-period dividend D1 and require r > g.',trap:'Using D0 or letting g equal/exceed r.'},
  {name:'Implied required return from Gordon model',formula:'r = (D1 / P0) + g',topic:'Discounted Dividend Valuation',meaning:'The forward dividend yield plus expected stable growth.',trap:'Calling dividend yield the total return.'},
