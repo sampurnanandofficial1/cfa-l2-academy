@@ -28,6 +28,10 @@ jobs:
           grep -q 'function renderDashboard' app.js
           grep -q 'function renderPractice' app.js
           grep -q 'function renderQuestionBuilder' app.js
+      - name: Install UI smoke-test dependency
+        run: npm install --no-save --no-package-lock jsdom@26
+      - name: Test interactive UI flows
+        run: node .github/scripts/ui-smoke-test.cjs
       - name: Prepare static website artifact
         run: |
           mkdir -p dist
