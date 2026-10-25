@@ -59,12 +59,13 @@ const visibleText = () => window.document.getElementById('app').textContent || '
   assert(!visibleText().includes('Dashboard could not render'), 'App rendered its fatal-error fallback.');
 
   const pages = [
-    ['dashboard', 'Overview'], ['learn', 'Learn'], ['curriculum', 'Curriculum Explorer'],
-    ['questions', 'Question Bank'], ['practice', 'Practice Session'],
-    ['itemset', 'Item-Set Practice'], ['mock', 'Mock Exams'],
+    ['dashboard', 'Overview'], ['subjects', 'All 10 Subjects'], ['resources', 'SSEI & Study Resources'],
+    ['learn', 'Equity Study Guides'], ['curriculum', 'Equity Curriculum Explorer'],
+    ['questions', 'Equity Question Bank'], ['practice', 'Equity Practice'],
+    ['itemset', 'Equity Item-Set Practice'], ['mock', 'Equity Mock Exams'],
     ['formulas', 'Formula Library'], ['flashcards', 'Flashcards'],
     ['revision', 'Revision Centre'], ['analytics', 'Performance Analytics'],
-    ['notes', 'Bookmarks & Notes'], ['source', 'Source Import'],
+    ['notes', 'Bookmarks & Notes'], ['source', 'Equity Source Import'],
     ['questionbuilder', 'Question Builder'], ['settings', 'Profile & Settings']
   ];
   for (const [page, title] of pages) {
@@ -74,6 +75,25 @@ const visibleText = () => window.document.getElementById('app').textContent || '
     assert(actual === title, 'Navigation failed for ' + page + ': expected "' + title + '", got "' + actual + '".');
     assert(!visibleText().includes('Dashboard could not render'), 'Runtime render failure on page ' + page + '.');
   }
+
+
+  click('[data-action="nav"][data-page="subjects"]');
+  assert(window.document.querySelectorAll('.subject-card').length === 10, 'Subject explorer must render all ten Level II topics.');
+  const topicStatus = window.document.querySelector('[data-topic-status="quantitative"]');
+  assert(topicStatus, 'Quantitative Methods status selector is missing.');
+  topicStatus.value = 'in-progress';
+  topicStatus.dispatchEvent(new window.Event('change', { bubbles: true }));
+  const topicState = JSON.parse(window.localStorage.getItem('cfa-equity-academy:v1'));
+  assert(topicState.profiles[topicState.activeProfile].topicStatus.quantitative === 'in-progress',
+    'Subject status was not persisted for the active learner.');
+  click('[data-action="subject-detail"][data-subject="equity"]');
+  assert(window.document.querySelector('.page-title')?.textContent?.trim() === 'Equity Valuation Plan',
+    'Opening a subject plan did not render the selected subject.');
+  click('[data-action="nav"][data-page="resources"]');
+  assert(visibleText().includes('FROM SSEI') && visibleText().includes('Additional Practice Questions'),
+    'SSEI materials page must show both source-labeled resources.');
+  assert(window.document.querySelectorAll('input[data-material-key]').length === 2,
+    'SSEI material upload controls are missing.');
 
   click('[data-action="nav"][data-page="practice"]');
   const answer = window.document.querySelector('input[name="answer"]');
@@ -133,7 +153,7 @@ const visibleText = () => window.document.getElementById('app').textContent || '
 
   assert(runtimeErrors.length === 0, 'Runtime errors: ' + runtimeErrors.join(' | '));
   assert(consoleErrors.length === 0, 'DOM/browser errors: ' + consoleErrors.join(' | '));
-  console.log('UI smoke test passed: startup, 15 navigation pages, practice answer submission, theme toggle, settings persistence, flashcards and notes.');
+  console.log('UI smoke test passed: startup, 17 navigation pages, all ten subject cards, subject status persistence, SSEI resource cards, Equity practice, mocks, themes, settings, notes and flashcards.');
   dom.window.close();
 })().catch(error => {
   console.error(error.stack || error);

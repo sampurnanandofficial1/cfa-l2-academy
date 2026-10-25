@@ -285,3 +285,41 @@ td { color: #cfdae8; }
   .chart-label, .chart-value { font-size: 10px; }
   .hero-actions .btn { flex: 1; }
 }
+
+
+/* Multi-topic CFA Level II dashboard and local study-resource vault */
+.subject-grid { align-items:stretch; }
+.subject-card { display:flex; flex-direction:column; gap:0; }
+.subject-card-top,.subject-title-line,.resource-heading,.resource-meta,.resource-actions { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.subject-title-line { justify-content:flex-start; margin-top:12px; min-height:34px; }
+.subject-title-line h3 { margin:0; font:800 14px Manrope,sans-serif; line-height:1.35; }
+.subject-icon { display:grid; place-items:center; flex:0 0 34px; height:34px; border-radius:10px; background:var(--accent-soft); color:var(--accent); font-size:18px; }
+.subject-card p { color:var(--muted); font-size:11px; line-height:1.65; margin:10px 0 12px; min-height:52px; }
+.subject-focus { background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:11px 12px; margin-bottom:12px; }
+.subject-focus .label { margin-bottom:6px; }
+.subject-focus ul,.focus-list { margin:0; padding-left:18px; color:var(--muted); font-size:11px; line-height:1.75; }
+.subject-status { margin-top:auto; }
+.subject-status-select { width:100%; margin-bottom:10px; }
+.subject-open { width:100%; margin-top:4px; }
+.ssei-resource-grid { align-items:stretch; }
+.resource-card { display:flex; flex-direction:column; min-width:0; }
+.resource-heading { align-items:flex-start; margin-bottom:11px; }
+.resource-kicker { color:var(--accent); font-size:9px; letter-spacing:1.25px; font-weight:800; text-transform:uppercase; margin-bottom:7px; }
+.resource-heading .card-title { font-size:15px; line-height:1.4; }
+.resource-description { color:var(--muted); font-size:12px; line-height:1.7; margin:0 0 13px; }
+.resource-meta { color:var(--muted); font-size:10px; margin:auto 0 12px; flex-wrap:wrap; }
+.resource-actions { justify-content:flex-start; flex-wrap:wrap; margin-bottom:8px; }
+.resource-footnote { color:var(--subtle); font-size:10px; line-height:1.55; margin-top:10px; }
+.subject-upload { margin-top:10px; }
+.material-row .row-end { flex-wrap:wrap; justify-content:flex-end; }
+.material-row .row-end .btn { white-space:nowrap; }
+.resource-subject-grid { align-items:start; }
+.resource-subject-grid .card { min-width:0; }
+.resource-subject-grid .list-row { align-items:flex-start; }
+@media (max-width:560px) {
+  .subject-card p { min-height:0; }
+  .resource-meta { align-items:flex-start; flex-direction:column; }
+  .resource-heading { flex-direction:column; }
+  .material-row { flex-wrap:wrap; }
+  .material-row .row-end { width:100%; justify-content:flex-start; }
+}
