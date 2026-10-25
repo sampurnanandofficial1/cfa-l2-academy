@@ -347,6 +347,44 @@ const VIGNETTES = {
     'Meridian Holdings is a fictional diversified parent with three operating units that have different customers, economics and capital intensity. The analyst estimates a standalone enterprise value for each unit and aggregates those values.',
     'At the parent level, excess cash, debt and debt-like pension obligations must be reconciled before common-equity value is estimated. Any conglomerate discount is a separate adjustment that needs evidence about complexity, capital allocation or governance.'
   ]}
+,
+  'lm1-valuation-foundations':{title:'Global-Guardian Capital · Valuation and model-selection case',source:'Curriculum · LM1 practice-set summary',paragraphs:[
+    'A research firm compares market prices with estimates of intrinsic value. Analysts are reminded that prices may not converge within their investment horizon, so a catalyst may matter. One fund screens financially distressed issuers; another seeks financially sound companies expected to generate substantial operating free cash flow over several years.',
+    'The firm evaluates three menswear retailers. The industry has few barriers to entry, intense rivalry, low customer switching costs and many wholesale suppliers. One retailer reports a favourable litigation settlement, a one-time tax credit and a gain on sale of a non-operating asset, making reported earnings likely to exceed sustainable earnings.',
+    'A fast-growing semiconductor company is not expected to be profitable or pay dividends for several years, although acquisition interest is possible. The analyst must select a valuation model consistent with those facts instead of relying mechanically on an earnings or dividend multiple.'
+  ]},
+  'framework-and-model-selection':{title:'Equity Research Desk · Valuation purpose and model selection',source:'Curriculum',paragraphs:[
+    'An equity research desk reviews companies with different business models, financial conditions and ownership structures. Before selecting a method, the analyst clarifies the valuation purpose and premise, separates market price from estimated intrinsic value, and assesses the reliability of financial information.',
+    'Cases include irregular dividends with meaningful cash-generation capacity, market prices that may imply unrealistic expectations, and a parent company with unrelated segments. The model must fit the economics, data quality and valuation purpose.'
+  ]},
+  'ddm-stable-growth':{title:'Cedar Utilities · Stable dividends and sustainable growth',source:'Curriculum',paragraphs:[
+    'Cedar Utilities is a mature business used to practise stable-growth dividend valuation. The analyst distinguishes a dividend just paid from the next expected dividend, estimates a supportable long-run growth rate, and selects a required return appropriate to equity cash flows.',
+    'Stable-growth valuation requires the required return to exceed perpetual growth. Sustainable growth depends on profitability and the earnings retention ratio; valuation becomes highly sensitive as the required-return-minus-growth spread narrows.'
+  ]},
+  'ddm-growth-and-payout':{title:'Cedar Utilities · Transition growth, payout and repurchases',source:'Curriculum',paragraphs:[
+    'A company moves from unusually high growth toward maturity. Dividends may grow rapidly at first and fade toward a stable rate, so the chosen model should represent the transition rather than assume immediate stability.',
+    'The company may also make special distributions or repurchase shares. Dividend forecasts, payout, share count and sustainable growth must be considered together.'
+  ]},
+  'fcf-bridge':{title:'Ridgeway Components · Cash-flow bridge and operating risk',source:'Curriculum',paragraphs:[
+    'Ridgeway Components is an industrial supplier. Analysts start from net income and reconcile non-cash charges, after-tax interest, fixed-capital investment and working-capital investment. When starting from EBITDA, taxes, depreciation, capital expenditure and working capital need a different bridge.',
+    'A potential environmental rule may raise recurring operating costs and closure-related capital spending. Model material economic effects explicitly and avoid counting the same risk in both cash flows and the discount rate.'
+  ]},
+  'fcf-terminal-and-claims':{title:'Ridgeway Components · Terminal value and financing bridge',source:'Curriculum',paragraphs:[
+    'The valuation team forecasts free cash flow through a transition period, then estimates value after the terminal date. Terminal value uses the next period’s cash flow with a defensible discount-rate-minus-growth spread.',
+    'Analysts distinguish FCFF from FCFE, define net borrowing as debt issued less debt repaid, and reconcile enterprise value to common-equity value by treating excess cash and senior or debt-like claims consistently.'
+  ]},
+  'multiple-comparison':{title:'Harbor Products and a cyclical issuer · Comparing valuation multiples',source:'Curriculum',paragraphs:[
+    'An analyst compares Harbor Consumer Products with listed peers and a cyclical producer whose earnings have fallen sharply near a cycle trough. Sales, earnings and cash-flow measures are comparable only after accounting definitions, revenue recognition and the business-cycle position are examined.',
+    'A multiple premium needs an explanation grounded in growth, margins, risk, reinvestment and accounting quality. EBITDA is not free cash flow, and reported sales can be distorted by premature recognition or principal-versus-agent presentation.'
+  ]},
+  'residual-income-accounting':{title:'Residual Income Review · Accounting quality and model choice',source:'Curriculum',paragraphs:[
+    'An analyst compares reported earnings with the required return on beginning book equity. The residual-income framework adds the present value of future residual income to current book value, so net income, dividends and book equity must reconcile coherently.',
+    'An item recorded directly in other comprehensive income and substantial internally generated product-development costs may affect book value and earnings. Model choice depends on whether book equity and accounting earnings can be forecast and adjusted reliably.'
+  ]},
+  'private-method-selection':{title:'Private Company Review · Method selection and valuation range',source:'Curriculum',paragraphs:[
+    'A privately held business has customer concentration and uncertainty about whether its founder will remain. Reported earnings need normalization; forecasts should reflect outcomes that change maintainable cash flow; and the required return should match risks not already represented in forecasts.',
+    'The valuation team cross-checks income-based, guideline public-company and excess-earnings approaches. For a diversified parent, unit values are aggregated before excess cash, debt and other claims are reconciled.'
+  ]}
 };
 function renderVignettePassage(id) {
   const v=VIGNETTES[id];
