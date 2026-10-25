@@ -6,7 +6,7 @@ const DB_NAME = 'cfa-equity-academy-local';
 const DB_STORE = 'private-study-content';
 
 const MODULES = [
-  { id:'m1', no:1, title:'Equity Valuation: Applications and Processes', start:3, end:48, practice:[41,46], solutions:[47,48], summary:'Set the valuation question before choosing a model: define the value concept, understand the business, inspect the quality of financial information, select a method whose assumptions fit, and communicate a reasoned conclusion.',
+  { id:'m1', no:1, questionCount:16, title:'Equity Valuation: Applications and Processes', start:3, end:48, practice:[41,46], solutions:[47,48], summary:'Set the valuation question before choosing a model: define the value concept, understand the business, inspect the quality of financial information, select a method whose assumptions fit, and communicate a reasoned conclusion.',
     topics:[
       {title:'Value definitions and valuation applications',page:4,body:'Valuation is an estimate anchored to a purpose, perspective, and set of assumptions. Intrinsic value depends on expected economic benefits and risk; market price is the observed transaction price. Differences can be informative, but the estimate is only as sound as the inputs and model.'},
       {title:'Understanding the business',page:10,body:'Map the business model, industry structure, competitive advantage, unit economics, revenue drivers, cost structure, capital intensity, and key risks. A financial forecast should follow from a coherent business story rather than extrapolate historical numbers mechanically.'},
@@ -16,7 +16,7 @@ const MODULES = [
       {title:'Issues in model selection and interpretation',page:27,body:'A model is a conditional estimate, not a fact. Test sensitivity to growth, margins, discount rates, terminal assumptions, accounting quality, and cyclicality. Avoid false precision and make assumptions visible.'},
       {title:'Analyst responsibilities and communicating results',page:30,body:'A research conclusion should separate facts, assumptions, and judgment; explain key risks and model limitations; provide a traceable basis for the estimate; and comply with applicable professional responsibilities.'}
     ]},
-  { id:'m2', no:2, title:'Discounted Dividend Valuation', start:49, end:124, practice:[105,116], solutions:[117,124], summary:'Dividend discount models value equity as the present value of expected distributions. Growth, payout, required return, and the horizon must be internally consistent; a perpetual-growth model requires required return to exceed long-run growth.',
+  { id:'m2', no:2, questionCount:38, title:'Discounted Dividend Valuation', start:49, end:124, practice:[105,116], solutions:[117,124], summary:'Dividend discount models value equity as the present value of expected distributions. Growth, payout, required return, and the horizon must be internally consistent; a perpetual-growth model requires required return to exceed long-run growth.',
     topics:[
       {title:'Present value models and the dividend discount model',page:51,body:'The value of a share is the present value of expected future shareholder distributions. A one-period version includes the next dividend and expected sale price; a multi-period version discounts all expected dividends plus the terminal price.'},
       {title:'The Gordon growth model',page:62,body:'For stable perpetual growth, V0 = D1 / (r − g). Use next period dividend D1, not the just-paid dividend D0. The model is highly sensitive when the spread between required return and growth is small.'},
@@ -26,7 +26,7 @@ const MODULES = [
       {title:'Financial determinants of growth rates',page:94,body:'Under steady assumptions, sustainable growth is ROE multiplied by the earnings retention ratio. Payout, profitability, and reinvestment opportunity jointly determine growth; growth alone does not guarantee value creation.'},
       {title:'Financial models and dividends',page:99,body:'Dividend policy, repurchases, reinvestment needs, and financing choices influence distributions. Keep payout and growth assumptions coherent with expected profitability and capital requirements.'}
     ]},
-  { id:'m3', no:3, title:'Free Cash Flow Valuation', start:125, end:220, practice:[183,202], solutions:[203,220], summary:'FCFF represents cash flow available to all capital providers and is discounted at WACC; FCFE represents cash flow available to common equity and is discounted at the cost of equity. Keep cash flows, discount rates, capital structure, and equity/enterprise value consistent.',
+  { id:'m3', no:3, questionCount:52, title:'Free Cash Flow Valuation', start:125, end:220, practice:[183,202], solutions:[203,220], summary:'FCFF represents cash flow available to all capital providers and is discounted at WACC; FCFE represents cash flow available to common equity and is discounted at the cost of equity. Keep cash flows, discount rates, capital structure, and equity/enterprise value consistent.',
     topics:[
       {title:'FCFF and FCFE valuation approaches',page:127,body:'FCFF is before debt-holder cash flows and produces firm value when discounted at WACC. FCFE reflects financing flows and produces equity value when discounted at the required return on equity.'},
       {title:'Computing FCFF from net income and cash flow statements',page:131,body:'A common bridge is FCFF = net income + non-cash charges + interest expense after tax − fixed-capital investment − working-capital investment. The exact bridge depends on the starting line and statement classification.'},
@@ -36,7 +36,7 @@ const MODULES = [
       {title:'Two-stage and three-stage free-cash-flow models',page:164,body:'Model high-growth or transition years explicitly, then use a stable terminal assumption. Terminal value should use next-period cash flow and a spread between discount rate and perpetual growth that is economically defensible.'},
       {title:'Sensitivity analysis, ESG, and non-operating assets',page:163,body:'Sensitivity analysis shows which assumptions drive the estimate. Incorporate relevant material factors through their effect on cash flows, risk, or discount rates; add non-operating assets separately when not captured in operating cash flow.'}
     ]},
-  { id:'m4', no:4, title:'Market-Based Valuation: Price and Enterprise Value Multiples', start:221, end:336, practice:[311,325], solutions:[326,336], summary:'Multiples are comparative tools, not substitutes for understanding fundamentals. Match the numerator to the denominator, adjust for differences in growth, risk, profitability, accounting, and capital structure, and use comparable definitions.',
+  { id:'m4', no:4, questionCount:53, title:'Market-Based Valuation: Price and Enterprise Value Multiples', start:221, end:336, practice:[311,325], solutions:[326,336], summary:'Multiples are comparative tools, not substitutes for understanding fundamentals. Match the numerator to the denominator, adjust for differences in growth, risk, profitability, accounting, and capital structure, and use comparable definitions.',
     topics:[
       {title:'Price and enterprise value multiples in valuation',page:223,body:'Equity-value multiples use share price or market capitalization over an equity metric. Enterprise-value multiples use firm value over an operating metric available to debt and equity capital providers. Numerator and denominator must represent the same claim.'},
       {title:'Price/Earnings: basics and forecasted fundamentals',page:226,body:'P/E is affected by growth, required return, payout, accounting quality, and the earnings base. A justified leading P/E under stable assumptions is payout divided by (r − g). Negative or unusually low earnings can make interpretation misleading.'},
@@ -47,7 +47,7 @@ const MODULES = [
       {title:'International comparisons and momentum indicators',page:291,body:'Differences in accounting, interest rates, inflation, risk, and sector mix can distort simple comparisons. Momentum indicators describe price trends rather than intrinsic value, and should be interpreted within a disciplined process.'},
       {title:'Averaging multiples: harmonic mean and multiple indicators',page:299,body:'Outliers can distort simple averages. The harmonic mean can be appropriate for certain averaging problems involving ratios, but only if its weighting assumptions match the question. Use multiple valuation indicators as cross-checks, not blindly averaged answers.'}
     ]},
-  { id:'m5', no:5, title:'Residual Income Valuation', start:337, end:404, practice:[381,391], solutions:[392,404], summary:'Residual income measures earnings above the equity charge on beginning book value. Equity value equals current book value plus the present value of expected future residual income under the model’s assumptions.',
+  { id:'m5', no:5, questionCount:48, title:'Residual Income Valuation', start:337, end:404, practice:[381,391], solutions:[392,404], summary:'Residual income measures earnings above the equity charge on beginning book value. Equity value equals current book value plus the present value of expected future residual income under the model’s assumptions.',
     topics:[
       {title:'Residual income and the residual income model',page:338,body:'Residual income = net income − (required return on equity × beginning book value of equity). Positive earnings do not necessarily mean value creation: income must exceed the opportunity cost of equity capital.'},
       {title:'The general model and fundamental determinants',page:346,body:'Value can be expressed as current book value plus discounted expected future residual income. Persistence of excess returns, clean-surplus accounting, and forecast quality influence the result.'},
@@ -56,7 +56,7 @@ const MODULES = [
       {title:'Clean surplus and accounting considerations',page:362,body:'The clean-surplus relation is BVE ending = BVE beginning + net income − dividends. Items bypassing net income but changing equity can violate this relationship and require analyst adjustments.'},
       {title:'Intangibles, non-recurring items, aggressive accounting, international issues',page:372,body:'Understand how unrecognized internally generated intangibles, write-offs, unusual gains/losses, and different accounting regimes affect book value and reported earnings. Adjust only with a clearly explained rationale.'}
     ]},
-  { id:'m6', no:6, title:'Private Company Valuation', start:405, end:472, practice:[457,461], solutions:[462,463], summary:'Private-company valuation requires normalization of owner-specific and non-recurring items, careful cash-flow estimation, an appropriate required return, and reasoned treatment of control and marketability differences.',
+  { id:'m6', no:6, questionCount:15, title:'Private Company Valuation', start:405, end:472, practice:[457,461], solutions:[462,463], summary:'Private-company valuation requires normalization of owner-specific and non-recurring items, careful cash-flow estimation, an appropriate required return, and reasoned treatment of control and marketability differences.',
     topics:[
       {title:'Public vs. private company valuation and uses',page:407,body:'Private companies often have less disclosure, less liquid ownership interests, concentrated ownership, and owner-specific expenses. The valuation premise and intended use—transaction, financial reporting, tax, or planning—affect the approach.'},
       {title:'Private-company valuation areas of focus',page:412,body:'Investigate customer concentration, management dependence, owner compensation, related-party transactions, capital expenditure needs, working capital, and data quality.'},
@@ -323,6 +323,113 @@ function renderNotes() {
   '<div class="card" style="margin-top:17px"><div class="card-header"><div><h3 class="card-title">Saved notes</h3><div class="card-subtitle">Newest first</div></div></div>'+
   (p.notes.length?p.notes.slice().reverse().map(function(n){return '<div class="topic-row"><div class="topic-summary"><div class="row-icon">✎</div><div class="topic-copy"><strong>'+esc(n.title||n.front||'Personal note')+'</strong><small>'+esc(getModule(n.module||'m1').title)+' · '+relativeDate(n.createdAt)+'</small></div><button class="btn ghost small" data-action="delete-note" data-id="'+esc(n.id)+'">Delete</button></div><div class="topic-detail">'+esc(n.text||n.back||'')+'</div></div>';}).join(''):'<div class="empty-state"><div class="empty-icon">✎</div><h3>No notes saved yet</h3><p>Capture the reasoning you want to revisit.</p></div>')+'</div>';
 }
+function cleanSourceLine(line) {
+  const s=String(line||'').trim();
+  if(!s)return '';
+  if(/^(PRACTICE PROBLEMS|Practice Problems|SOLUTIONS|Solutions|Equity Valuation)$/i.test(s))return '';
+  if(/^Learning Module\s+\d+\s*$/i.test(s))return '';
+  if(/^\d{1,3}$/.test(s))return '';
+  return s;
+}
+function splitNumberedSourceBlocks(pages,moduleId,type,expectedCount) {
+  const lines=[];
+  pages.filter(function(p){return p.module===moduleId&&p.type===type;}).sort(function(a,b){return a.printedPage-b.printedPage;}).forEach(function(p){
+    String(p.text||'').split('\n').forEach(function(raw){const text=cleanSourceLine(raw);if(text)lines.push({text:text,page:p.printedPage});});
+  });
+  const starts=[];let next=1;
+  for(let i=0;i<lines.length&&next<=expectedCount;i++){
+    const m=lines[i].text.match(/^\s*(\d{1,2})\.\s*(.*)$/);
+    if(m&&Number(m[1])===next){starts.push({num:next,index:i,page:lines[i].page,firstText:(m[2]||'').trim()});next++;}
+  }
+  const groups=[];
+  lines.forEach(function(line,i){
+    const m=line.text.match(/the following information relates to questions\s+(\d{1,2})\s*[-–]\s*(\d{1,2})/i);
+    if(!m)return;
+    const firstNum=Number(m[1]),lastNum=Number(m[2]);
+    const firstStart=starts.find(function(s){return s.num===firstNum&&s.index>i;});
+    if(!firstStart)return;
+    const context=lines.slice(i,firstStart.index).map(function(x){return x.text;}).join('\n').trim();
+    if(context)groups.push({fromIndex:i,firstIndex:firstStart.index,firstNum:firstNum,lastNum:lastNum,context:context});
+  });
+  const preamble=starts.length?lines.slice(0,starts[0].index).map(function(x){return x.text;}).join('\n').trim():'';
+  const blocks=starts.map(function(start,j){
+    const nextStart=starts[j+1]||null;
+    let end=nextStart?nextStart.index:lines.length;
+    const nextGroup=nextStart?groups.find(function(g){return g.firstIndex===nextStart.index;}):null;
+    if(nextGroup)end=nextGroup.fromIndex;
+    const bodyLines=lines.slice(start.index+1,end);
+    let body=[start.firstText].concat(bodyLines.map(function(x){return x.text;})).filter(Boolean).join('\n').trim();
+    const matchingGroup=groups.find(function(g){return start.num>=g.firstNum&&start.num<=g.lastNum&&g.firstIndex<=start.index;});
+    let context='';
+    if(matchingGroup)context=matchingGroup.context;
+    else if(start.num===1&&preamble&&!groups.some(function(g){return g.firstIndex===start.index;}))context=preamble;
+    if(context&&body.indexOf(context)<0)body=context+'\n\n'+body;
+    const blockEndPage=bodyLines.length?bodyLines[bodyLines.length-1].page:start.page;
+    return {num:start.num,page:start.page,endPage:blockEndPage,text:body};
+  });
+  return {blocks:blocks,expected:expectedCount,found:blocks.length,lines:lines.length,groups:groups.length};
+}
+function parseSourceOptions(stem) {
+  const lines=String(stem||'').split('\n'), first=lines.findIndex(function(line){return /^\s*A[\.\)]\s+\S/i.test(line);});
+  if(first<0)return {stem:String(stem||'').trim(),options:[]};
+  const options=[];let active=null;
+  for(let i=first;i<lines.length;i++){
+    const line=lines[i];
+    const m=line.match(/^\s*([ABC])[\.\)]\s*(.*)$/i);
+    if(m){
+      const key=m[1].toUpperCase();
+      if(options.length&&key.charCodeAt(0)!==options[options.length-1].key.charCodeAt(0)+1) { if(active)options[options.length-1].text=active.trim(); break; }
+      if(active)options[options.length-1].text=active.trim();
+      active=(m[2]||'').trim();options.push({key:key,text:active});
+    } else if(active&&line.trim()) { active+=' '+line.trim(); }
+  }
+  if(active&&options.length)options[options.length-1].text=active.trim();
+  if(options.length<2)return {stem:String(stem||'').trim(),options:[]};
+  return {stem:lines.slice(0,first).join('\n').trim(),options:options};
+}
+function extractSolutionKey(solution) {
+  const s=String(solution||'');
+  const m=s.match(/(?:^|\n)\s*([ABC])\s+is correct\b/i)||s.match(/\b([ABC])\s+is correct\b/i);
+  return m?m[1].toUpperCase():null;
+}
+function buildBookQuestionCandidates(pages) {
+  const candidates=[],stats={expected:0,extracted:0,withOptions:0,withAnswerKey:0,constructed:0,modules:[]};
+  MODULES.forEach(function(mod){
+    const expected=mod.questionCount||0;stats.expected+=expected;
+    const practice=splitNumberedSourceBlocks(pages,mod.id,'Practice problems',expected);
+    const solution=splitNumberedSourceBlocks(pages,mod.id,'Solutions',expected);
+    const byNumber={};solution.blocks.forEach(function(b){byNumber[b.num]=b;});
+    let withOptions=0,withKey=0,constructed=0;
+    practice.blocks.forEach(function(block){
+      const sol=byNumber[block.num];const parsed=parseSourceOptions(block.text);
+      const key=sol?extractSolutionKey(sol.text):null;
+      if(parsed.options.length>=2)withOptions++;else constructed++;
+      if(key)withKey++;
+      const titleLines=parsed.stem.split('\n').map(function(x){return x.trim();}).filter(Boolean);
+      let title=(titleLines[titleLines.length>1?titleLines.length-1:0]||titleLines[0]||('Question '+block.num)).replace(/^\W+/,'').trim();
+      if(title.length>105)title=title.slice(0,102)+'…';
+      const solutionText=sol?sol.text:'';
+      const rationales=parsed.options.map(function(o){return {key:o.key,text:key?(o.key===key?'The source solution identifies '+key+' as the correct answer. Compare the full source solution below and expand this into a complete rationale.':'The extracted answer key does not identify this option as correct. Add a specific distractor explanation before marking this question reviewed.'):'The source answer could not be confidently identified from the extracted solution block; independently verify the answer and explanation.'};});
+      candidates.push({
+        id:'book-'+mod.id+'-q'+block.num,module:mod.id,topic:title||mod.title,type:parsed.options.length>=2?'Source MCQ':'Constructed response',difficulty:'Needs review',title:'LM '+mod.no+' · Q'+block.num+': '+(title||'Source question '+block.num),
+        stem:parsed.stem||block.text,options:parsed.options,correct:key,responseType:parsed.options.length>=2?'mcq':'constructed',
+        sourceBookQuestion:true,bookImported:true,sourcePage:block.page===block.endPage?String(block.page):String(block.page)+'–'+String(block.endPage),
+        sourcePdfPage:block.page+10,sourceSolution:solutionText,verificationStatus:'Needs explanation review',
+        explain:{
+          intuition:'This question was extracted locally from the curriculum. The source solution is provided as a reference, but the first-principles explanation and distractor analysis still require review.',
+          steps:solutionText?solutionText.split('\n').map(function(x){return x.trim();}).filter(Boolean):['No solution text was confidently matched. Verify the official solution manually.'],
+          formula:'',rationales:rationales,trap:'Check the assumptions, timing, units, signs, and whether the formula matches the value being measured.',
+          memory:'Summarize the tested relationship in your own words after reviewing the solution.',
+          transfer:'Write an original variant after the source question has been checked.',
+          transferAnswer:'Create and independently verify a solution before using a transfer question for assessment.'
+        }
+      });
+    });
+    stats.extracted+=practice.blocks.length;stats.withOptions+=withOptions;stats.withAnswerKey+=withKey;stats.constructed+=constructed;
+    stats.modules.push({id:mod.id,expected:expected,practiceFound:practice.found,solutionsFound:solution.found,mcq:withOptions,constructed:constructed,answerKeysFound:withKey});
+  });
+  return {questions:candidates,stats:stats};
+}
 function sourcePlan() {
   const plans=[]; MODULES.forEach(function(m){for(let p=m.practice[0];p<=m.practice[1];p++)plans.push({module:m.id,printedPage:p,type:'Practice problems'});for(let p=m.solutions[0];p<=m.solutions[1];p++)plans.push({module:m.id,printedPage:p,type:'Solutions'});});return plans;
 }
@@ -440,7 +547,12 @@ async function importPDF(file) {
       pages.push({id:p.module+'-'+p.type.replace(/\W/g,'').toLowerCase()+'-'+p.printedPage,module:p.module,printedPage:p.printedPage,pdfPage:pdfPage,type:p.type,text:linesFromItems(text.items)});
       if(i%4===0) {const status=document.getElementById('importStatus'), percent=document.getElementById('importPercent'),bar=document.getElementById('importBar');if(status)status.textContent=ui.importStatus;if(percent)percent.textContent=ui.importPercent+'%';if(bar)bar.style.width=ui.importPercent+'%';await new Promise(function(resolve){setTimeout(resolve,0);});}
     }
-    await saveSourcePages(pages);ui.sourcePages=pages;ui.sourcePageIndex=0;state.shared.sourceMeta={fileName:file.name,pdfPages:pdf.numPages,importedAt:new Date().toISOString(),pageCount:pages.length};saveState();ui.importPercent=100;ui.importStatus='Import complete';notify('Extracted '+pages.length+' source-page records locally. No PDF upload occurred.'); 
+    await saveSourcePages(pages);ui.sourcePages=pages;ui.sourcePageIndex=0;
+    const parsed=buildBookQuestionCandidates(pages);
+    state.shared.customQuestions=(state.shared.customQuestions||[]).filter(function(q){return !q.bookImported;}).concat(parsed.questions);
+    state.shared.inventoryStats=parsed.stats;
+    state.shared.sourceMeta={fileName:file.name,pdfPages:pdf.numPages,importedAt:new Date().toISOString(),pageCount:pages.length,questionCount:parsed.stats.extracted,expectedQuestionCount:parsed.stats.expected,mcqCount:parsed.stats.withOptions,constructedCount:parsed.stats.constructed,answerKeysFound:parsed.stats.withAnswerKey};
+    saveState();ui.importPercent=100;ui.importStatus='Import complete';notify('Extracted '+pages.length+' source-page records and '+parsed.stats.extracted+' question candidates locally. '+parsed.stats.withAnswerKey+' answer keys were detected; all source questions remain flagged for review.'); 
   } catch(e) {console.error(e);notify('PDF import failed. Check internet access for the PDF.js parser and try again.',true);ui.importStatus='Import failed: '+(e.message||'unknown error');}
   ui.importing=false;renderAppSafe();
 }
