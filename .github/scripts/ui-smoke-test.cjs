@@ -129,11 +129,23 @@ const nav = page => click('.sidebar .nav-item[data-page="' + page + '"]');
 
   click('[data-action="nav"][data-page="questions"]');
   assert(visibleText().includes('60 total available'), 'The question bank should contain 60 questions.');
+  const builtInSets = [...window.document.querySelectorAll('.question-set-card')];
+  assert(builtInSets.length === 11, 'The built-in 60-question bank should be grouped into 11 item sets.');
+  for (const set of builtInSets) {
+    assert(set.querySelectorAll('.itemset-passage-block').length === 1,
+      'Each item set must show exactly one separate passage container: ' + set.querySelector('.card-title')?.textContent);
+    assert(set.querySelectorAll('.itemset-questions-container').length === 1,
+      'Each item set must show a separate related-questions container.');
+    const rows = set.querySelectorAll('.itemset-questions-container .question-row').length;
+    assert(rows >= 4 && rows <= 6, 'Each built-in item set must contain 4–6 linked questions; got ' + rows);
+  }
   const supplementalQuestion = window.document.querySelector('[data-action="open-question"][data-qid="q17"]');
   assert(supplementalQuestion, 'Curriculum-tagged question q17 is missing from the question bank.');
   supplementalQuestion.click();
   assert(window.document.querySelector('.question-source-tag')?.textContent?.trim() === 'Curriculum',
     'Supplemental practice question should show the Curriculum source tag.');
+  assert(window.document.querySelector('.practice-layout .itemset-passage-block'), 'Opening a question should keep its shared passage visible above the question.');
+  assert(window.document.querySelectorAll('.set-question-link').length >= 4, 'The opened question should expose navigation to related questions in its set.');
   const supplementalAnswer = window.document.querySelector('input[name="answer"][value="B"]');
   assert(supplementalAnswer, 'Supplemental FCFF question answer options did not render.');
   supplementalAnswer.click();
@@ -166,7 +178,7 @@ const nav = page => click('.sidebar .nav-item[data-page="' + page + '"]');
   nav('practice');
   click('[data-action="nav"][data-page="itemset"]');
   const passages = window.document.querySelectorAll('.itemset-passage-block');
-  const relatedQuestions = window.document.querySelectorAll('.itemset-related-block');
+  const relatedQuestions = window.document.querySelectorAll('.itemset-questions-container');
   assert(passages.length >= 6, 'Case-based practice should show separate passage blocks for shared vignettes.');
   assert(passages.length === relatedQuestions.length,
     'Every case passage must have a separate related-questions block.');
@@ -175,6 +187,25 @@ const nav = page => click('.sidebar .nav-item[data-page="' + page + '"]');
   click('[data-action="open-question"][data-qid]');
   assert(window.document.querySelector('.question-heading'), 'Opening an item-set question did not open the practice view.');
   assert(window.document.querySelector('.practice-layout'), 'Item-set question should open the answer workspace.');
+  const importedDemo = [
+    {id:'book-m1-q1',module:'m1',topic:'Perceived mispricing',type:'Source MCQ',difficulty:'Needs review',title:'LM 1 · Q1: perceived mispricing',stem:'Which gap is relevant to an active manager?',options:[{key:'A',text:'Price and estimate'},{key:'B',text:'True intrinsic value and price'},{key:'C',text:'Estimate and true value'}],correct:'B',sourceBookQuestion:true,bookImported:true,sourcePage:'41',sourceLabel:'Curriculum',verificationStatus:'Needs explanation review'},
+    {id:'book-m1-q2',module:'m1',topic:'Measures of value',type:'Source MCQ',difficulty:'Needs review',title:'LM 1 · Q2: analyst might ignore?',stem:'With respect to Statements 3 and 4, which measure of value would the distressed securities fund’s analyst consider that a core equity fund analyst might ignore?',options:[{key:'A',text:'Fair value'},{key:'B',text:'Liquidation value'},{key:'C',text:'Fair market value'}],correct:'B',sourceBookQuestion:true,bookImported:true,sourcePage:'42',sourceLabel:'Curriculum',verificationStatus:'Needs explanation review'},
+    {id:'book-m1-q3',module:'m1',topic:'Going concern value',type:'Source MCQ',difficulty:'Needs review',title:'LM 1 · Q3: going concern value',stem:'Which value premise best suits a core fund focused on future operating cash flow?',options:[{key:'A',text:'Liquidation value'},{key:'B',text:'Investment value'},{key:'C',text:'Going-concern value'}],correct:'C',sourceBookQuestion:true,bookImported:true,sourcePage:'42',sourceLabel:'Curriculum',verificationStatus:'Needs explanation review'},
+    {id:'book-m1-q4',module:'m1',topic:'Market expectations',type:'Source MCQ',difficulty:'Needs review',title:'LM 1 · Q4: extract market expectations',stem:'What can an analyst infer by comparing a valuation model with market price?',options:[{key:'A',text:'Market-implied expectations'},{key:'B',text:'Book depreciation'},{key:'C',text:'Only liquidation proceeds'}],correct:'A',sourceBookQuestion:true,bookImported:true,sourcePage:'42',sourceLabel:'Curriculum',verificationStatus:'Needs explanation review'}
+  ];
+  window.eval('state.shared.customQuestions = '+JSON.stringify(importedDemo)+'; ui.sourcePages=[]; ui.sourceBlockIndex=null; ui.page="questions"; ui.practiceMode=false; saveState(); renderApp();');
+  const sourceSet = [...window.document.querySelectorAll('.question-set-card')].find(card => card.textContent.includes('Source item set A'));
+  assert(sourceSet, 'An imported LM1 source question without a stored set ID must be grouped into Source item set A.');
+  assert(sourceSet.querySelectorAll('.itemset-questions-container .question-row').length === 4,
+    'Imported LM1 Questions 1–4 should appear together in one set.');
+  assert(sourceSet.querySelector('.itemset-passage-block')?.textContent.includes('Global-Guardian Capital'),
+    'Imported LM1 Questions 1–4 should show the shared Global-Guardian passage fallback.');
+  click('[data-action="open-question"][data-qid="book-m1-q2"]');
+  assert(window.document.querySelector('.practice-layout .itemset-passage-block')?.textContent.includes('financially distressed'),
+    'The reported LM1 Q2 failure must show its shared passage when opened directly.');
+  assert(window.document.querySelectorAll('.set-question-link').length === 4,
+    'The source Q2 view should allow navigation among its four linked questions.');
+
 
   nav('practice');
   click('[data-action="nav"][data-page="mock"]');

@@ -7,8 +7,8 @@ A CFA Level II 2026 study dashboard for all ten topic areas, with integrated sou
 - Responsive study dashboard with light/dark theme and coverage of all ten 2026 Level II topic areas.
 - Per-learner subject status tracking for Not started, In progress, Needs revision, and Completed.
 - Six learning modules, topic guides, and a searchable curriculum explorer.
-- Original in-app multiple-choice practice with worked solutions and distractor explanations.
-- Formula library, flashcards, revision queue, notes, bookmarks, mock exams, and performance analytics.
+- Original in-app multiple-choice practice with worked solutions and distractor explanations, organized as item sets with separate passage and linked-question containers.
+- Passage-first item-set practice, within-set question navigation, formula library, flashcards, revision queue, notes, bookmarks, mock exams, and performance analytics.
 - Independent learner profiles stored in the current browser.
 - Public, source-labeled notes and original questions; the visible navigation does not require uploading the source PDFs.
 - Question Builder for reviewing source questions, answer keys, steps, distractor explanations, and source references.
