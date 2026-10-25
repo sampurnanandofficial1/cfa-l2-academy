@@ -60,3 +60,8 @@ The curriculum outline and printed-page mappings are based on the CFA Program Cu
 - Curriculum item sets are grouped only when the current source archive contains an explicit question-range heading and a non-empty shared passage. Stale inferred mappings are not trusted.
 - Item-set cards display full question stems and answer choices inline. If a source passage cannot be verified, the question is marked as unverified instead of attaching a guessed passage.
 - Complete inventory coverage of curriculum examples, exhibits, practice questions and solutions depends on indexing the original PDF in Source Vault. The PDF is not bundled in the public static deployment.
+
+
+### Verified item-set grouping
+
+Item sets now use only explicit source question-range headings from the locally indexed curriculum pages. A group is created only if the shared passage text is non-empty. The passage and complete question stems/choices display separately. Where the source passage cannot be verified, the item is marked as unverified rather than assigned a similar-sounding or generated case. The PDF is not embedded in the public repository; exact source text requires the learner's locally indexed copy.
