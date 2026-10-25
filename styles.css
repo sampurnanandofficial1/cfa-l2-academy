@@ -618,3 +618,29 @@ td { color: #cfdae8; }
  .integrated-guide-body { padding:0 12px 13px; }
  .notes-section-heading h3 { font-size:17px; }
 }
+
+
+/* Exact curriculum page inventory inside the unified Detailed Notes view */
+.source-inventory-stats { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; margin:12px 0 15px; }
+.source-inventory-stats>div { min-width:0; display:flex; flex-direction:column; gap:5px; padding:11px; border:1px solid var(--border); border-radius:10px; background:var(--surface); }
+.source-inventory-stats strong { font:800 18px Manrope,sans-serif; color:var(--accent); }
+.source-inventory-stats span { font-size:10px; line-height:1.45; color:var(--muted); }
+.local-curriculum-pages { display:flex; flex-direction:column; gap:8px; }
+.local-curriculum-page { border:1px solid var(--border); border-radius:11px; background:var(--surface); overflow:hidden; }
+.local-curriculum-page>summary { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:12px; cursor:pointer; list-style:none; }
+.local-curriculum-page>summary::-webkit-details-marker { display:none; }
+.local-curriculum-page-title { flex:1; min-width:160px; font:700 11px/1.5 Manrope,sans-serif; }
+.local-curriculum-page-body { border-top:1px solid var(--border); padding:14px; }
+.local-full-page-text { white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.75; font-size:11px; max-height:none; }
+.local-page-footer { margin-top:10px; color:var(--muted); font-size:10px; }
+.notes-source-pagination { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:14px; color:var(--muted); font-size:11px; }
+.local-source-note { margin-top:13px; color:var(--muted); font-size:10px; line-height:1.7; }
+.itemset-passage-block p { white-space:pre-wrap; overflow-wrap:anywhere; }
+@media(max-width:920px) { .source-inventory-stats { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media(max-width:560px) {
+ .source-inventory-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .local-curriculum-page>summary { align-items:flex-start; }
+ .local-curriculum-page-title { flex-basis:100%; order:2; }
+ .local-curriculum-page .study-note-meta { margin-left:auto; }
+ .local-curriculum-page-body { padding:10px; }
+}

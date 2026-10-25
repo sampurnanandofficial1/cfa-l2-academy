@@ -1,4 +1,5 @@
 const fs = require('node:fs');
+const vm = require('node:vm');
 const { JSDOM, VirtualConsole } = require('jsdom');
 
 const html = fs.readFileSync('index.html', 'utf8');
@@ -32,6 +33,70 @@ if (visualMaps !== 9) throw new Error('Expected nine visual memory maps; found '
 if (!appSource.includes('function renderGordonSensitivityGraph') || !appSource.includes('function renderGrowthFadeGraph')) {
   throw new Error('The two illustrative learning graphs are missing.');
 }
+assert(appSource.includes("function sourcePlan(pdfPages)"), 'The source vault must plan the complete curriculum page range.');
+assert(appSource.includes("type='Curriculum text'"), 'The source vault must index learning text and example/exhibit pages.');
+assert(appSource.includes("function reconcileImportedBookQuestions()"), 'Saved question mappings must be repaired from local source pages at startup.');
+assert(!appSource.includes("'lm1-valuation-foundations'"), 'A hand-written passage must never be used as a fallback for a source-book question.');
+assert(!appSource.includes('const QUESTION_SET_DEFINITIONS = ['), 'The old arbitrary q-number-to-passage mapping must be removed.');
+
+// Exercise the real parser with a multiline source heading and a standalone question.
+const parserStart = appSource.indexOf('function cleanSourceLine(line) {');
+const parserEnd = appSource.indexOf('\nfunction parseSourceOptions(stem)', parserStart);
+const helperStart = appSource.indexOf('function sourceQuestionNumber(q) {');
+const helperEnd = appSource.indexOf('\nconst FORMULAS = [', helperStart);
+assert(parserStart >= 0 && parserEnd > parserStart && helperStart >= 0 && helperEnd > helperStart,
+  'Source parser functions could not be isolated for regression testing.');
+const parserContext = {
+  MODULES:[{id:'m1',no:1,questionCount:5,title:'Test Learning Module'}],
+  ui:{sourcePages:[],sourceBlockIndex:null},
+  VIGNETTES:{},
+  getModule:id=>({no:Number(String(id).replace(/\D/g,''))||1,title:'Test Learning Module'}),
+  esc:value=>String(value)
+};
+vm.createContext(parserContext);
+vm.runInContext(appSource.slice(parserStart,parserEnd)+'\n'+appSource.slice(helperStart,helperEnd),parserContext);
+const fixturePages=[{id:'m1-practice-41',module:'m1',printedPage:41,type:'Practice problems',text:[
+  'PRACTICE PROBLEMS 41',
+  'The following information relates to questions',
+  '1-4',
+  'Aster Capital is evaluating the shares of a listed company.',
+  'The passage contains the full operating context and its key assumptions.',
+  'EXHIBIT 1: Forecast information',
+  '1. Which conclusion follows from the case?',
+  'A. First choice',
+  'B. Second choice',
+  'C. Third choice',
+  '2. Which additional interpretation is justified?',
+  'A. First choice',
+  'B. Second choice',
+  'C. Third choice',
+  '3. Which assumption is most relevant?',
+  'A. First choice',
+  'B. Second choice',
+  'C. Third choice',
+  '4. Which result is best supported?',
+  'A. First choice',
+  'B. Second choice',
+  'C. Third choice',
+  '5. A separate standalone question with its own facts.',
+  'A. First choice',
+  'B. Second choice',
+  'C. Third choice'
+].join('\n')}];
+const parsedFixture=parserContext.splitNumberedSourceBlocks(fixturePages,'m1','Practice problems',5);
+assert(parsedFixture.blocks.length===5,'Parser fixture should retain all five question stems.');
+const fixture1=parsedFixture.blocks.find(block=>block.num===1),fixture2=parsedFixture.blocks.find(block=>block.num===2),fixture4=parsedFixture.blocks.find(block=>block.num===4),fixture5=parsedFixture.blocks.find(block=>block.num===5);
+assert(fixture1.sourceSetId==='source-m1-q1-4'&&fixture4.sourceSetId==='source-m1-q1-4',
+  'Questions 1–4 must be linked by the explicit source range, not an inferred topic mapping.');
+assert(fixture1.passageText.includes('Aster Capital')&&fixture1.passageText.includes('EXHIBIT 1')&&fixture1.passageText.includes('key assumptions'),
+  'The parser must preserve the full context and exhibit text preceding the linked questions.');
+assert(fixture1.passageText===fixture2.passageText&&fixture2.passageText===fixture4.passageText,
+  'All questions in the same source range must share exactly the same passage.');
+assert(fixture1.questionText.startsWith('Which conclusion follows')&&!fixture1.questionText.includes('Aster Capital'),
+  'Shared passage must not be prepended to the individual question stem.');
+assert(!fixture5.sourceSetId&&!fixture5.passageText,
+  'A standalone question outside an explicit shared range must not receive an invented passage.');
+
 
 const virtualConsole = new VirtualConsole();
 const consoleErrors = [];
@@ -123,7 +188,7 @@ const nav = page => click('.sidebar .nav-item[data-page="' + page + '"]');
     'Detailed Notes should include all nine mind maps in the same view.');
   assert(window.document.querySelectorAll('.learning-chart-card').length === 2,
     'Detailed Notes should include both illustrative sensitivity graphs.');
-  for (const id of ['notes-topic-library','notes-teaching-guides','notes-formulas','notes-mind-maps','notes-examples','notes-personal']) {
+  for (const id of ['notes-topic-library','notes-teaching-guides','notes-formulas','notes-mind-maps','notes-examples','notes-personal','notes-source-pages']) {
     assert(window.document.getElementById(id), 'Unified notes section is missing: ' + id);
   }
   assert(window.document.querySelector('#studyNoteSearch')?.placeholder.includes('all notes, formulas, variables, maps'),
@@ -143,15 +208,19 @@ const nav = page => click('.sidebar .nav-item[data-page="' + page + '"]');
   click('[data-action="nav"][data-page="questions"]');
   assert(visibleText().includes('60 total available'), 'The question bank should contain 60 questions.');
   const builtInSets = [...window.document.querySelectorAll('.question-set-card')];
-  assert(builtInSets.length === 11, 'The built-in 60-question bank should be grouped into 11 item sets.');
+  assert(builtInSets.length > 11, 'The bank should group genuine shared-vignette questions and keep independent questions standalone.');
+  let displayedQids = [];
   for (const set of builtInSets) {
     assert(set.querySelectorAll('.itemset-passage-block').length === 1,
-      'Each item set must show exactly one separate passage container: ' + set.querySelector('.card-title')?.textContent);
+      'Each displayed group must have a separate context container: ' + set.querySelector('.card-title')?.textContent);
     assert(set.querySelectorAll('.itemset-questions-container').length === 1,
-      'Each item set must show a separate related-questions container.');
-    const rows = set.querySelectorAll('.itemset-questions-container .question-row').length;
-    assert(rows >= 4 && rows <= 6, 'Each built-in item set must contain 4–6 linked questions; got ' + rows);
+      'Each displayed group must have a separate question container.');
+    displayedQids.push(...[...set.querySelectorAll('.itemset-questions-container .question-row')].map(row=>row.dataset.qid));
   }
+  assert(displayedQids.length === 60 && new Set(displayedQids).size === 60,
+    'All 60 built-in questions must appear exactly once across the item-set bank.');
+  assert(builtInSets.some(set=>set.textContent.includes('STANDALONE QUESTION CONTEXT')),
+    'Questions without a shared passage should be visibly marked as standalone.');
   const supplementalQuestion = window.document.querySelector('[data-action="open-question"][data-qid="q17"]');
   assert(supplementalQuestion, 'Curriculum-tagged question q17 is missing from the question bank.');
   supplementalQuestion.click();
@@ -224,17 +293,24 @@ const nav = page => click('.sidebar .nav-item[data-page="' + page + '"]');
   const sourceNav=page=>{const node=sourceDom.window.document.querySelector('.sidebar .nav-item[data-page="'+page+'"]');assert(node,'Source-session navigation missing: '+page);node.click();};
   sourceNav('practice');
   sourceDom.window.document.querySelector('[data-action="nav"][data-page="questions"]').click();
-  const sourceSet=[...sourceDom.window.document.querySelectorAll('.question-set-card')].find(card=>card.textContent.includes('Source item set A'));
-  assert(sourceSet,'An imported LM1 source question without a stored set ID must be grouped into Source item set A.');
-  assert(sourceSet.querySelectorAll('.itemset-questions-container .question-row').length===4,'Imported LM1 Questions 1–4 should appear together in one set.');
-  assert(sourceSet.querySelector('.itemset-passage-block')?.textContent.includes('Global-Guardian Capital'),'Imported LM1 Questions 1–4 should show the shared Global-Guardian passage fallback.');
-  sourceSet.querySelector('[data-action="open-question"][data-qid="book-m1-q2"]').click();
+  const sourceQ1Card=[...sourceDom.window.document.querySelectorAll('.question-set-card')].find(card=>card.textContent.includes('Q1: perceived mispricing'));
+  assert(sourceQ1Card,'An imported LM1 source question should remain visible if source pages are not yet cached.');
+  assert(sourceQ1Card.querySelectorAll('.itemset-questions-container .question-row').length===1,
+    'An imported question without a verified source group must remain standalone.');
+  assert(sourceQ1Card.querySelector('.itemset-passage-block')?.textContent.includes('STANDALONE QUESTION CONTEXT'),
+    'Missing shared passage must be clearly identified rather than guessed.');
+  assert(!sourceQ1Card.querySelector('.itemset-passage-block')?.textContent.includes('Global-Guardian'),
+    'A passage must not be inferred from the question number or topic.');
+  const sourceQ2Card=[...sourceDom.window.document.querySelectorAll('.question-set-card')].find(card=>card.textContent.includes('Q2: analyst might ignore'));
+  assert(sourceQ2Card,'Imported LM1 Q2 must not disappear from the question bank.');
+  sourceQ2Card.querySelector('[data-action="open-question"][data-qid="book-m1-q2"]').click();
   const sourcePassage=sourceDom.window.document.querySelector('.content .itemset-passage-block');
   const sourceLayout=sourceDom.window.document.querySelector('.practice-layout');
-  assert(sourcePassage?.textContent.includes('financially distressed'),'The reported LM1 Q2 failure must show its shared passage when opened directly.');
-  assert(sourceLayout&&(sourcePassage.compareDocumentPosition(sourceLayout)&sourceDom.window.Node.DOCUMENT_POSITION_FOLLOWING),'The Q2 passage must be a separate container before the question layout.');
-  assert(sourceDom.window.document.querySelectorAll('.set-question-link').length===4,'The source Q2 view should allow navigation among its four linked questions.');
-  assert(sourceDom.window.document.querySelector('.question-stem')?.textContent.includes('Statements 3 and 4'),'The question stem should remain separate from the shared passage.');
+  assert(sourcePassage?.textContent.includes('STANDALONE QUESTION CONTEXT'),'Q2 without source-page cache must not receive a substitute passage.');
+  assert(!sourcePassage?.textContent.includes('Global-Guardian'),'Q2 must never be mapped to the unrelated Q1–8 passage without source extraction.');
+  assert(sourceLayout&&(sourcePassage.compareDocumentPosition(sourceLayout)&sourceDom.window.Node.DOCUMENT_POSITION_FOLLOWING),'The context container must appear separately before the question workspace.');
+  assert(sourceDom.window.document.querySelectorAll('.set-question-link').length===1,'Unmapped standalone Q2 must not claim unrelated sibling questions.');
+  assert(sourceDom.window.document.querySelector('.question-stem')?.textContent.includes('Statements 3 and 4'),'The imported question stem must remain separately visible.');
   assert(sourceErrors.length===0,'Source-session runtime errors: '+sourceErrors.join(' | '));
   sourceDom.window.close();
 
@@ -279,7 +355,7 @@ const nav = page => click('.sidebar .nav-item[data-page="' + page + '"]');
 
   assert(runtimeErrors.length === 0, 'Runtime errors: ' + runtimeErrors.join(' | '));
   assert(consoleErrors.length === 0, 'DOM/browser errors: ' + consoleErrors.join(' | '));
-  console.log('UI smoke test passed: compact navigation, 10-subject tracker, six Equity modules, 97 source notes, nine memory maps, two graphs, 60-question bank, passage-based sets, active practice, mock submission, notes filtering and theme/settings persistence.');
+  console.log('UI smoke test passed: exact source-range parsing, no synthetic passage mapping, all 60 built-in questions, unified Detailed Notes plus local source-page index, full-source vault, practice navigation, mock submission and theme/settings persistence.');
   dom.window.close();
 })().catch(error => {
   console.error(error.stack || error);
