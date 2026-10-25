@@ -348,43 +348,7 @@ const VIGNETTES = {
     'At the parent level, excess cash, debt and debt-like pension obligations must be reconciled before common-equity value is estimated. Any conglomerate discount is a separate adjustment that needs evidence about complexity, capital allocation or governance.'
   ]}
 ,
-  'lm1-valuation-foundations':{title:'Global-Guardian Capital · Valuation and model-selection case',source:'Curriculum · LM1 practice-set summary',paragraphs:[
-    'A research firm compares market prices with estimates of intrinsic value. Analysts are reminded that prices may not converge within their investment horizon, so a catalyst may matter. One fund screens financially distressed issuers; another seeks financially sound companies expected to generate substantial operating free cash flow over several years.',
-    'The firm evaluates three menswear retailers. The industry has few barriers to entry, intense rivalry, low customer switching costs and many wholesale suppliers. One retailer reports a favourable litigation settlement, a one-time tax credit and a gain on sale of a non-operating asset, making reported earnings likely to exceed sustainable earnings.',
-    'A fast-growing semiconductor company is not expected to be profitable or pay dividends for several years, although acquisition interest is possible. The analyst must select a valuation model consistent with those facts instead of relying mechanically on an earnings or dividend multiple.'
-  ]},
-  'framework-and-model-selection':{title:'Equity Research Desk · Valuation purpose and model selection',source:'Curriculum',paragraphs:[
-    'An equity research desk reviews companies with different business models, financial conditions and ownership structures. Before selecting a method, the analyst clarifies the valuation purpose and premise, separates market price from estimated intrinsic value, and assesses the reliability of financial information.',
-    'Cases include irregular dividends with meaningful cash-generation capacity, market prices that may imply unrealistic expectations, and a parent company with unrelated segments. The model must fit the economics, data quality and valuation purpose.'
-  ]},
-  'ddm-stable-growth':{title:'Cedar Utilities · Stable dividends and sustainable growth',source:'Curriculum',paragraphs:[
-    'Cedar Utilities is a mature business used to practise stable-growth dividend valuation. The analyst distinguishes a dividend just paid from the next expected dividend, estimates a supportable long-run growth rate, and selects a required return appropriate to equity cash flows.',
-    'Stable-growth valuation requires the required return to exceed perpetual growth. Sustainable growth depends on profitability and the earnings retention ratio; valuation becomes highly sensitive as the required-return-minus-growth spread narrows.'
-  ]},
-  'ddm-growth-and-payout':{title:'Cedar Utilities · Transition growth, payout and repurchases',source:'Curriculum',paragraphs:[
-    'A company moves from unusually high growth toward maturity. Dividends may grow rapidly at first and fade toward a stable rate, so the chosen model should represent the transition rather than assume immediate stability.',
-    'The company may also make special distributions or repurchase shares. Dividend forecasts, payout, share count and sustainable growth must be considered together.'
-  ]},
-  'fcf-bridge':{title:'Ridgeway Components · Cash-flow bridge and operating risk',source:'Curriculum',paragraphs:[
-    'Ridgeway Components is an industrial supplier. Analysts start from net income and reconcile non-cash charges, after-tax interest, fixed-capital investment and working-capital investment. When starting from EBITDA, taxes, depreciation, capital expenditure and working capital need a different bridge.',
-    'A potential environmental rule may raise recurring operating costs and closure-related capital spending. Model material economic effects explicitly and avoid counting the same risk in both cash flows and the discount rate.'
-  ]},
-  'fcf-terminal-and-claims':{title:'Ridgeway Components · Terminal value and financing bridge',source:'Curriculum',paragraphs:[
-    'The valuation team forecasts free cash flow through a transition period, then estimates value after the terminal date. Terminal value uses the next period’s cash flow with a defensible discount-rate-minus-growth spread.',
-    'Analysts distinguish FCFF from FCFE, define net borrowing as debt issued less debt repaid, and reconcile enterprise value to common-equity value by treating excess cash and senior or debt-like claims consistently.'
-  ]},
-  'multiple-comparison':{title:'Harbor Products and a cyclical issuer · Comparing valuation multiples',source:'Curriculum',paragraphs:[
-    'An analyst compares Harbor Consumer Products with listed peers and a cyclical producer whose earnings have fallen sharply near a cycle trough. Sales, earnings and cash-flow measures are comparable only after accounting definitions, revenue recognition and the business-cycle position are examined.',
-    'A multiple premium needs an explanation grounded in growth, margins, risk, reinvestment and accounting quality. EBITDA is not free cash flow, and reported sales can be distorted by premature recognition or principal-versus-agent presentation.'
-  ]},
-  'residual-income-accounting':{title:'Residual Income Review · Accounting quality and model choice',source:'Curriculum',paragraphs:[
-    'An analyst compares reported earnings with the required return on beginning book equity. The residual-income framework adds the present value of future residual income to current book value, so net income, dividends and book equity must reconcile coherently.',
-    'An item recorded directly in other comprehensive income and substantial internally generated product-development costs may affect book value and earnings. Model choice depends on whether book equity and accounting earnings can be forecast and adjusted reliably.'
-  ]},
-  'private-method-selection':{title:'Private Company Review · Method selection and valuation range',source:'Curriculum',paragraphs:[
-    'A privately held business has customer concentration and uncertainty about whether its founder will remain. Reported earnings need normalization; forecasts should reflect outcomes that change maintainable cash flow; and the required return should match risks not already represented in forecasts.',
-    'The valuation team cross-checks income-based, guideline public-company and excess-earnings approaches. For a diversified parent, unit values are aggregated before excess cash, debt and other claims are reconciled.'
-  ]}
+
 };
 function renderVignettePassage(id) {
   const v=VIGNETTES[id];
@@ -393,25 +357,7 @@ function renderVignettePassage(id) {
 }
 
 
-const QUESTION_SET_DEFINITIONS = [
- {id:'set-framework',order:1,module:'m1',title:'Valuation foundations and model selection',passageId:'framework-and-model-selection',source:'Curriculum',questionIds:['q29','q32','q34','q35','q36']},
- {id:'set-ddm-stable',order:2,module:'m2',title:'Stable-growth DDM and sustainable growth',passageId:'ddm-stable-growth',source:'Curriculum',questionIds:['q1','q2','q12','q20','q22']},
- {id:'set-ddm-transition',order:3,module:'m2',title:'Dividend growth transitions and payout',passageId:'ddm-growth-and-payout',source:'Curriculum',questionIds:['q5','q21','q37','q38','q39','q59']},
- {id:'set-fcf-bridge',order:4,module:'m3',title:'Free-cash-flow construction and operating risk',passageId:'fcf-bridge',source:'Curriculum',questionIds:['q3','q4','q17','q18','q40','q44']},
- {id:'set-fcf-terminal',order:5,module:'m3',title:'Terminal value, financing and equity bridge',passageId:'fcf-terminal-and-claims',source:'Curriculum',questionIds:['q13','q19','q30','q41','q42','q43']},
- {id:'set-fundamental-multiples',order:6,module:'m4',title:'Fundamental and peer-based equity multiples',passageId:'northstar',source:'Curriculum',questionIds:['q6','q7','q14','q15','q16','q31']},
- {id:'set-multiple-comparison',order:7,module:'m4',title:'Multiple comparability, cycle effects and accounting quality',passageId:'multiple-comparison',source:'Curriculum',questionIds:['q23','q24','q45','q46','q47','q48']},
- {id:'set-ri-basics',order:8,module:'m5',title:'Residual income and clean-surplus foundations',passageId:'residual-income-review',source:'Curriculum',questionIds:['q8','q9','q25','q26','q27']},
- {id:'set-ri-accounting',order:9,module:'m5',title:'Residual income, accounting adjustments and model choice',passageId:'residual-income-accounting',source:'Curriculum',questionIds:['q49','q50','q51','q52','q60']},
- {id:'set-private-normalization',order:10,module:'m6',title:'Private-company normalization, risk and ownership discounts',passageId:'private-company-review',source:'Curriculum',questionIds:['q10','q11','q28','q53','q54','q55']},
- {id:'set-private-methods',order:11,module:'m6',title:'Private-company methods and uncertainty',passageId:'private-method-selection',source:'Curriculum',questionIds:['q33','q56','q57','q58']}
-];
-const SOURCE_ITEM_SET_DEFINITIONS = [
- {id:'source-m1-q1-4',order:-20,module:'m1',title:'LM 1 · Source item set A (Questions 1–4)',source:'Curriculum',sourceFrom:1,sourceTo:4,passageId:'lm1-valuation-foundations'},
- {id:'source-m1-q5-8',order:-19,module:'m1',title:'LM 1 · Source item set B (Questions 5–8)',source:'Curriculum',sourceFrom:5,sourceTo:8,passageId:'lm1-valuation-foundations'}
-];
-const QUESTION_SET_BY_QID = {};
-QUESTION_SET_DEFINITIONS.forEach(function(set){set.questionIds.forEach(function(id){QUESTION_SET_BY_QID[id]=set;});});
+
 function sourceQuestionNumber(q) {
   const id=String(q&&q.id||''),title=String(q&&q.title||'');
   const byId=id.match(/(?:^|-)q(\d+)(?:$|-)/i),byTitle=title.match(/\bQ\s*(\d+)\b/i);
@@ -426,8 +372,7 @@ function sourceQuestionRanges(first,last) {
   return result;
 }
 function sourceRangeForQuestion(questionNo,first,last) {
-  const range=sourceQuestionRanges(first,last).find(function(r){return questionNo>=r.from&&questionNo<=r.to;});
-  return range||{from:first,to:last};
+  return sourceQuestionRanges(first,last).find(function(r){return questionNo>=r.from&&questionNo<=r.to;})||{from:first,to:last};
 }
 function buildSourceQuestionBlockIndex() {
   if(ui.sourceBlockIndex)return ui.sourceBlockIndex;
@@ -445,60 +390,58 @@ function storedSourceBlockForQuestion(q) {
   return buildSourceQuestionBlockIndex()[q.module+':'+n]||null;
 }
 function getQuestionSet(q) {
-  if(!q)return QUESTION_SET_DEFINITIONS[0];
-  if(QUESTION_SET_BY_QID[q.id])return QUESTION_SET_BY_QID[q.id];
-  if(q.itemSetId&&q.sourcePassage)return {id:q.itemSetId,order:300,module:q.module,title:q.itemSetTitle||'Custom source item set',source:q.sourceLabel||'Curriculum',passageText:q.sourcePassage};
+  if(!q)return {id:'standalone-unknown',order:999,module:'m1',title:'Standalone practice question',source:'Original practice',standalone:true};
+  if(q.itemSetId&&q.sourcePassage)return {id:q.itemSetId,order:100+getModule(q.module).no,module:q.module,title:q.itemSetTitle||'Source item set',source:q.sourceLabel||'Curriculum',passageText:q.sourcePassage,sharedPassage:true};
   if(q.sourceBookQuestion||q.bookImported) {
-    const n=sourceQuestionNumber(q),block=storedSourceBlockForQuestion(q);
-    const setId=q.sourceSetId||(block&&block.sourceSetId);
-    const known=SOURCE_ITEM_SET_DEFINITIONS.find(function(s){return s.id===setId;});
-    if(known)return known;
-    if(block&&block.sourceSetId)return {id:block.sourceSetId,order:100+getModule(q.module).no+(block.sourceGroupFrom||block.num)/100,module:q.module,title:block.sourceSetTitle||('LM '+getModule(q.module).no+' · Source questions '+block.sourceGroupFrom+'–'+block.sourceGroupTo),source:'Curriculum',sourceFrom:block.sourceGroupFrom,sourceTo:block.sourceGroupTo,sourcePassageAvailable:!!block.passageText};
-    if(q.module==='m1'&&n&&n<=8)return SOURCE_ITEM_SET_DEFINITIONS.find(function(s){return n<=4?s.id==='source-m1-q1-4':s.id==='source-m1-q5-8';});
-    const mod=getModule(q.module),fallbackN=n||1,range=sourceRangeForQuestion(fallbackN,1,mod.questionCount||fallbackN);
-    return {id:'source-'+q.module+'-q'+range.from+'-'+range.to,order:100+mod.no+range.from/100,module:q.module,title:'LM '+mod.no+' · Source questions '+range.from+'–'+range.to,source:'Curriculum',sourceFrom:range.from,sourceTo:range.to,contextMissing:true};
+    const block=storedSourceBlockForQuestion(q);
+    if(block&&block.sourceSetId&&block.passageText) {
+      return {id:block.sourceSetId,order:100+getModule(q.module).no+(block.sourceGroupFrom||block.num)/100,module:q.module,title:block.sourceSetTitle,source:'Curriculum',sourceFrom:block.sourceGroupFrom,sourceTo:block.sourceGroupTo,sharedPassage:true,sourcePage:block.page};
+    }
+    const number=sourceQuestionNumber(q);
+    return {id:'standalone-source-'+q.id,order:400+getModule(q.module).no+(number||0)/100,module:q.module,title:q.title||('LM '+getModule(q.module).no+' · Q'+(number||'?')),source:q.sourceLabel||'Curriculum',sourceFrom:number,sourceTo:number,standalone:true,sourcePage:q.sourcePage||''};
   }
   if(q.vignetteId) {
     const v=VIGNETTES[q.vignetteId];
-    return {id:q.vignetteId,order:400,module:q.module,title:(v&&v.title)||q.vignetteTitle||q.vignetteId,source:(v&&v.source)||q.sourceLabel||'Curriculum',passageId:q.vignetteId,passageText:q.vignetteSummary||''};
+    return {id:q.vignetteId,order:200+getModule(q.module).no,module:q.module,title:(v&&v.title)||q.vignetteTitle||q.vignetteId,source:(v&&v.source)||q.sourceLabel||'Original practice',passageId:q.vignetteId,passageText:q.vignetteSummary||'',sharedPassage:true};
   }
-  const mod=getModule(q.module),slug=String(q.topic||q.title||'general').toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,30);
-  return {id:'unmapped-'+q.module+'-'+slug,order:500+mod.no,module:q.module,title:'LM '+mod.no+' · '+(q.topic||q.title||'Question context'),source:q.sourceLabel||'Curriculum',passageText:q.sourcePassage||'',contextMissing:!q.sourcePassage};
+  return {id:'standalone-'+q.id,order:500+getModule(q.module).no,module:q.module,title:q.title||('LM '+getModule(q.module).no+' · '+(q.topic||'Practice question')),source:q.sourceLabel||'Original practice',standalone:true,sourcePage:q.sourcePage||''};
 }
 function getStoredPassageForSet(set,question) {
-  if(!set||set.id.indexOf('source-')!==0)return '';
+  if(!set||!set.id||set.id.indexOf('source-')!==0)return '';
   const index=buildSourceQuestionBlockIndex(),all=Object.keys(index).map(function(key){return index[key];});
   const block=all.find(function(b){return b.sourceSetId===set.id&&!!b.passageText;});
   if(block)return block.passageText;
-  const n=sourceQuestionNumber(question),candidate=n&&question?index[question.module+':'+n]:null;
-  return candidate&&candidate.passageText?candidate.passageText:'';
+  const candidate=question?index[question.module+':'+sourceQuestionNumber(question)]:null;
+  return candidate&&candidate.sourceSetId===set.id?candidate.passageText||'':'';
 }
 function renderQuestionSetPassage(set,question) {
   const stored=getStoredPassageForSet(set,question);
   let title=set.title||'Item set',source=set.source||'Curriculum',paragraphs=[];
-  if(stored){source='Imported curriculum · local passage';paragraphs=String(stored).split(/\n\s*\n/).map(function(x){return x.trim();}).filter(Boolean);}
-  else if(set.passageId&&VIGNETTES[set.passageId]){const v=VIGNETTES[set.passageId];title=v.title||title;source=v.source||source;paragraphs=v.paragraphs||[];}
+  if(stored){source='Supplied curriculum · full shared passage';paragraphs=String(stored).split(/\n\s*\n/).map(function(x){return x.trim();}).filter(Boolean);}
+  else if(set.sharedPassage&&set.passageId&&VIGNETTES[set.passageId]){const v=VIGNETTES[set.passageId];title=v.title||title;source=v.source||source;paragraphs=v.paragraphs||[];}
   else if(set.passageText)paragraphs=String(set.passageText).split(/\n\s*\n/).map(function(x){return x.trim();}).filter(Boolean);
-  else if(question&&question.vignetteSummary)paragraphs=[question.vignetteSummary];
-  const missing=!paragraphs.length;
-  return '<section class="itemset-passage-block '+(missing?'passage-context-missing':'')+'"><div class="itemset-passage-label">PASSAGE / CASE FACTS · '+esc(source)+'</div><h3>'+esc(title)+'</h3>'+
-    (paragraphs.length?paragraphs.map(function(p){return '<p>'+esc(p)+'</p>';}).join(''):'<p>No shared passage was found in the saved question or this browser’s source-page archive. The question stem remains visible below. Check the cited source page and adjacent pages to recover its case context.</p>')+
-    '<div class="itemset-passage-hint">'+(stored?'Recovered from source pages stored locally in this browser; the original PDF and extracted passage are not embedded in the public website.':'Read this case context first. The specific question and its answer choices are in the separate questions container.')+'</div></section>';
+  else if(question&&question.vignetteSummary&&!question.sourceBookQuestion&&!question.bookImported)paragraphs=[question.vignetteSummary];
+  const standalone=!!set.standalone,missing=!paragraphs.length;
+  const label=standalone?'STANDALONE QUESTION CONTEXT':(missing?'SHARED PASSAGE UNAVAILABLE':'SHARED PASSAGE / CASE FACTS');
+  const message=missing?(standalone?'This is a standalone source question. The source does not provide a shared passage for it, so no unrelated passage has been attached. The question stem and answer choices are shown in the separate questions container.':'The exact shared passage is not present in this browser’s saved source pages. No substitute has been attached. Open Settings → Source Vault and re-import the supplied curriculum PDF to recover the original passage.'):(stored?'Full passage recovered from the supplied PDF’s saved text; question stem remains separate.':'Read this shared case passage first, then answer the related questions.');
+  return '<section class="itemset-passage-block '+(missing?'passage-context-missing':'')+'" data-passage-source="'+esc(stored?'source-pdf':missing?'missing':'authored')+'"><div class="itemset-passage-label">'+esc(label)+' · '+esc(source)+'</div><h3>'+esc(title)+'</h3>'+
+    (paragraphs.length?paragraphs.map(function(p){return '<p>'+esc(p)+'</p>';}).join(''):'<p>'+esc(message)+'</p>')+
+    '<div class="itemset-passage-hint">'+esc(message)+'</div></section>';
 }
 function groupQuestionsIntoItemSets(list) {
   const groups=new Map();
   list.forEach(function(q){const set=getQuestionSet(q);if(!groups.has(set.id))groups.set(set.id,{set:set,questions:[]});groups.get(set.id).questions.push(q);});
   return Array.from(groups.values()).map(function(g){
-    const order=g.set.questionIds||[];
-    g.questions.sort(function(a,b){return order.length?order.indexOf(a.id)-order.indexOf(b.id):(sourceQuestionNumber(a)||99999)-(sourceQuestionNumber(b)||99999);});
+    g.questions.sort(function(a,b){return (sourceQuestionNumber(a)||99999)-(sourceQuestionNumber(b)||99999);});
     return g;
   }).sort(function(a,b){return (a.set.order??999)-(b.set.order??999)||String(a.set.title).localeCompare(String(b.set.title));});
 }
 function renderItemSetGroupCard(group,index,filtered) {
-  const set=group.set,items=group.questions,first=items[0],expected=(set.questionIds&&set.questionIds.length)||(set.sourceFrom!=null&&set.sourceTo!=null?set.sourceTo-set.sourceFrom+1:items.length);
-  const subtitle=items.length!==expected?items.length+' of '+expected+' questions currently available or matching filters.':'Read the shared passage first, then navigate the linked questions.';
-  return '<article class="card question-set-card"><div class="itemset-group-header"><div><div class="eyebrow">ITEM SET '+String(index+1).padStart(2,'0')+' · LM '+getModule(set.module).no+' · '+expected+' LINKED QUESTIONS</div><h3 class="card-title">'+esc(set.title)+'</h3><div class="card-subtitle">'+esc(subtitle)+'</div></div><button class="btn small" data-action="open-question" data-qid="'+esc(first.id)+'">Start set →</button></div>'+
-    '<div class="itemset-two-pane">'+renderQuestionSetPassage(set,first)+'<section class="itemset-questions-container"><div class="itemset-related-header"><div><div class="itemset-passage-label">QUESTIONS IN THIS SET</div><h4>Related questions</h4></div><span class="badge blue">'+items.length+(items.length!==expected?' / '+expected:'')+'</span></div><div class="question-list">'+items.map(function(q,i){const s=questionStatus(profile(),q);return '<div class="question-row" data-action="open-question" data-qid="'+esc(q.id)+'"><div class="question-id">'+String(i+1).padStart(2,'0')+'</div><div class="question-content"><div class="question-title">'+esc(q.title)+'</div><div class="question-meta"><span>'+esc(getModule(q.module).title)+'</span><span>· '+esc(q.topic||q.type)+'</span><span class="badge muted">'+esc(q.sourceLabel||'Curriculum')+'</span>'+(q.sourceBookQuestion?'<span class="badge amber">'+esc(q.difficulty||'Needs review')+'</span>':'')+'</div></div><div class="question-end"><span class="badge '+(s==='correct'?'green':s==='incorrect'?'red':'muted')+'">'+(s==='correct'?'Correct':s==='incorrect'?'Review':'Open')+'</span><span>↗</span></div></div>';}).join('')+'</div></section></div></article>';
+  const set=group.set,items=group.questions,first=items[0],expected=(set.sourceFrom!=null&&set.sourceTo!=null?set.sourceTo-set.sourceFrom+1:items.length);
+  const itemLabel=set.standalone?'STANDALONE QUESTION':'ITEM SET';
+  const subtitle=items.length!==expected?items.length+' of '+expected+' questions currently available or matching filters.':(set.standalone?'This source item is not part of a shared vignette.':'Read the exact shared passage first, then navigate the linked questions.');
+  return '<article class="card question-set-card"><div class="itemset-group-header"><div><div class="eyebrow">'+itemLabel+' '+String(index+1).padStart(2,'0')+' · LM '+getModule(set.module).no+' · '+expected+' '+(set.standalone?'QUESTION':'LINKED QUESTIONS')+'</div><h3 class="card-title">'+esc(set.title)+'</h3><div class="card-subtitle">'+esc(subtitle)+'</div></div><button class="btn small" data-action="open-question" data-qid="'+esc(first.id)+'">Start '+(set.standalone?'question':'set')+' →</button></div>'+
+  '<div class="itemset-two-pane">'+renderQuestionSetPassage(set,first)+'<section class="itemset-questions-container"><div class="itemset-related-header"><div><div class="itemset-passage-label">'+(set.standalone?'QUESTION':'QUESTIONS IN THIS SET')+'</div><h4>'+(set.standalone?'Practice question':'Related questions')+'</h4></div><span class="badge blue">'+items.length+'</span></div><div class="question-list">'+items.map(function(q,i){const s=questionStatus(profile(),q);return '<div class="question-row" data-action="open-question" data-qid="'+esc(q.id)+'"><div class="question-id">'+String(i+1).padStart(2,'0')+'</div><div class="question-content"><div class="question-title">'+esc(q.title)+'</div><div class="question-meta"><span>'+esc(getModule(q.module).title)+'</span><span>· '+esc(q.topic||q.type)+'</span><span class="badge muted">'+esc(q.sourceLabel||(q.bookImported?'Curriculum':'Original practice'))+'</span>'+(q.sourceBookQuestion?'<span class="badge amber">'+esc(q.difficulty||'Needs review')+'</span>':'')+'</div></div><div class="question-end"><span class="badge '+(s==='correct'?'green':s==='incorrect'?'red':'muted')+'">'+(s==='correct'?'Correct':s==='incorrect'?'Review':'Open')+'</span><span>↗</span></div></div>';}).join('')+'</div></section></div></article>';
 }
 function renderSetQuestionNavigator(set,list,currentId) {
   const idx=list.findIndex(function(q){return q.id===currentId;});
@@ -916,7 +859,7 @@ function renderNotes() {
 function cleanSourceLine(line) {
   const s=String(line||'').trim();
   if(!s)return '';
-  if(/^(PRACTICE PROBLEMS|Practice Problems|SOLUTIONS|Solutions|Equity Valuation)$/i.test(s))return '';
+  if(/^(?:(?:\d{1,3})\s+)?(?:PRACTICE PROBLEMS|PRACTICE PROBLEM|SOLUTIONS?)(?:\s+\d{1,3})?$/i.test(s))return '';
   if(/^Learning Module\s+\d+\s*$/i.test(s))return '';
   if(/^\d{1,3}$/.test(s))return '';
   return s;
@@ -924,39 +867,61 @@ function cleanSourceLine(line) {
 function splitNumberedSourceBlocks(pages,moduleId,type,expectedCount) {
   const lines=[];
   pages.filter(function(p){return p.module===moduleId&&p.type===type;}).sort(function(a,b){return a.printedPage-b.printedPage;}).forEach(function(p){
-    String(p.text||'').split('\n').forEach(function(raw){const text=cleanSourceLine(raw);if(text)lines.push({text:text,page:p.printedPage});});
+    let paragraphStart=true;
+    String(p.text||'').split('\n').forEach(function(raw){
+      const text=cleanSourceLine(raw);
+      if(!text){paragraphStart=true;return;}
+      lines.push({text:text,page:p.printedPage,paragraphStart:paragraphStart});
+      paragraphStart=false;
+    });
   });
+  function joinLines(records) {
+    return records.map(function(x,i){return (i?(x.paragraphStart?'\n\n':'\n'):'')+x.text;}).join('');
+  }
   const starts=[];let next=1;
   for(let i=0;i<lines.length&&next<=expectedCount;i++){
     const m=lines[i].text.match(/^\s*(\d{1,2})\.\s*(.*)$/);
     if(m&&Number(m[1])===next){starts.push({num:next,index:i,page:lines[i].page,firstText:(m[2]||'').trim()});next++;}
   }
-  const groups=[];
-  lines.forEach(function(line,i){
-    const m=line.text.match(/the following information relates to questions\s+(\d{1,2})\s*[-–]\s*(\d{1,2})/i);
-    if(!m)return;
-    const firstNum=Number(m[1]),lastNum=Number(m[2]);
-    const firstStart=starts.find(function(s){return s.num===firstNum&&s.index>i;});
-    if(!firstStart)return;
-    const context=lines.slice(i,firstStart.index).map(function(x){return x.text;}).join('\n').trim();
-    if(context)groups.push({fromIndex:i,firstIndex:firstStart.index,firstNum:firstNum,lastNum:lastNum,context:context});
-  });
-  const preamble=starts.length?lines.slice(0,starts[0].index).map(function(x){return x.text;}).join('\n').trim():'';
-  const blocks=starts.map(function(start,j){
-    const nextStart=starts[j+1]||null;
+  const groups=[],rangeHeading=/the following information relates to questions\s+(\d{1,2})\s*[-–]\s*(\d{1,2})/i;
+  for(let i=0;i<lines.length;i++){
+    if(!/the following information relates to questions/i.test(lines[i].text))continue;
+    let headerText='',headerEndIndex=i,rangeMatch=null;
+    for(let j=i;j<Math.min(lines.length,i+6);j++){
+      headerText+=(headerText?' ':'')+lines[j].text;
+      rangeMatch=headerText.match(rangeHeading);
+      if(rangeMatch){headerEndIndex=j;break;}
+    }
+    if(!rangeMatch)continue;
+    const firstNum=Number(rangeMatch[1]),lastNum=Number(rangeMatch[2]);
+    const firstStart=starts.find(function(s){return s.num===firstNum&&s.index>headerEndIndex;});
+    if(!firstStart)continue;
+    const tail=headerText.replace(rangeHeading,'').trim();
+    const contextRecords=lines.slice(headerEndIndex+1,firstStart.index);
+    const contextParts=[];
+    if(tail)contextParts.push(tail);
+    if(contextRecords.length)contextParts.push(joinLines(contextRecords));
+    const context=contextParts.join('\n').trim();
+    if(context)groups.push({fromIndex:i,headerEndIndex:headerEndIndex,firstIndex:firstStart.index,firstNum:firstNum,lastNum:lastNum,context:context});
+  }
+  const blocks=starts.map(function(start){
+    const nextStart=starts[starts.findIndex(function(s){return s.num===start.num;})+1]||null;
     let end=nextStart?nextStart.index:lines.length;
     const nextGroup=nextStart?groups.find(function(g){return g.firstIndex===nextStart.index;}):null;
     if(nextGroup)end=nextGroup.fromIndex;
     const bodyLines=lines.slice(start.index+1,end);
     const questionText=[start.firstText].concat(bodyLines.map(function(x){return x.text;})).filter(Boolean).join('\n').trim();
-    let body=questionText,context='',groupFrom=null,groupTo=null;
-    const matchingGroup=groups.find(function(g){return start.num>=g.firstNum&&start.num<=g.lastNum&&g.firstIndex<=start.index;});
-    if(matchingGroup){context=matchingGroup.context;groupFrom=matchingGroup.firstNum;groupTo=matchingGroup.lastNum;}
-    else if(start.num===1&&preamble&&!groups.some(function(g){return g.firstIndex===start.index;})){context=preamble;groupFrom=1;groupTo=Math.min(expectedCount,6);}
-    if(context&&body.indexOf(context)<0)body=context+'\n\n'+body;
-    const range=groupFrom!=null?sourceRangeForQuestion(start.num,groupFrom,groupTo):sourceRangeForQuestion(start.num,1,expectedCount);
+    const group=groups.find(function(g){return start.num>=g.firstNum&&start.num<=g.lastNum&&g.firstIndex<=start.index&&!!g.context;});
+    let passageText='',sourceSetId=null,sourceGroupFrom=null,sourceGroupTo=null,sourceSetTitle='';
+    if(group){
+      passageText=group.context;
+      const range=sourceRangeForQuestion(start.num,group.firstNum,group.lastNum);
+      sourceGroupFrom=range.from;sourceGroupTo=range.to;
+      sourceSetId='source-'+moduleId+'-q'+range.from+'-'+range.to;
+      sourceSetTitle='LM '+getModule(moduleId).no+' · Source item set (Questions '+range.from+'–'+range.to+')';
+    }
     const blockEndPage=bodyLines.length?bodyLines[bodyLines.length-1].page:start.page;
-    return {num:start.num,page:start.page,endPage:blockEndPage,text:body,questionText:questionText,passageText:context,sourceSetId:'source-'+moduleId+'-q'+range.from+'-'+range.to,sourceGroupFrom:range.from,sourceGroupTo:range.to,sourceSetTitle:'LM '+getModule(moduleId).no+' · Source item set (Questions '+range.from+'–'+range.to+')'};
+    return {num:start.num,page:start.page,endPage:blockEndPage,text:questionText,questionText:questionText,passageText:passageText,sourceSetId:sourceSetId,sourceGroupFrom:sourceGroupFrom,sourceGroupTo:sourceGroupTo,sourceSetTitle:sourceSetTitle};
   });
   return {blocks:blocks,expected:expectedCount,found:blocks.length,lines:lines.length,groups:groups.length};
 }
