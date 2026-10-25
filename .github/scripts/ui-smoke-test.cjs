@@ -10,7 +10,7 @@ for (const action of actionNames) {
   if (!handledActions.has(action)) throw new Error('Rendered action has no click handler: ' + action);
 }
 const starterQuestionRows = appSource.split('\n').filter(line => /^\s*\{id:'q\d+'/.test(line));
-if (starterQuestionRows.length !== 16) throw new Error('Expected 16 starter questions; found ' + starterQuestionRows.length);
+if (starterQuestionRows.length !== 34) throw new Error('Expected 34 total practice questions; found ' + starterQuestionRows.length);
 for (const line of starterQuestionRows) {
   const id = line.match(/id:'(q\d+)'/)?.[1];
   const correct = line.match(/correct:'([A-Z])'/)?.[1];
