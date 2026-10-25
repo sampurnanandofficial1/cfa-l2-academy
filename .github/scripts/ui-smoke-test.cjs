@@ -59,7 +59,7 @@ const visibleText = () => window.document.getElementById('app').textContent || '
   assert(!visibleText().includes('Dashboard could not render'), 'App rendered its fatal-error fallback.');
 
   const pages = [
-    ['dashboard', 'Overview'], ['subjects', 'All 10 Subjects'], ['resources', 'SSEI & Study Resources'],
+    ['dashboard', 'Overview'], ['subjects', 'All 10 Subjects'],
     ['learn', 'Equity Study Guides'], ['curriculum', 'Equity Curriculum Explorer'],
     ['questions', 'Equity Question Bank'], ['practice', 'Equity Practice'],
     ['itemset', 'Equity Item-Set Practice'], ['mock', 'Equity Mock Exams'],
@@ -77,6 +77,8 @@ const visibleText = () => window.document.getElementById('app').textContent || '
   }
 
 
+  assert(visibleText().includes('One dashboard. All 10 CFA Level II subjects.'), 'Dashboard should identify the all-subject hub.');
+  assert(!window.document.querySelector('[data-action="nav"][data-page="resources"]'), 'The standalone SSEI resource navigation should be removed.');
   click('[data-action="nav"][data-page="subjects"]');
   assert(window.document.querySelectorAll('.subject-card').length === 10, 'Subject explorer must render all ten Level II topics.');
   const topicStatus = window.document.querySelector('[data-topic-status="quantitative"]');
@@ -89,11 +91,21 @@ const visibleText = () => window.document.getElementById('app').textContent || '
   click('[data-action="subject-detail"][data-subject="equity"]');
   assert(window.document.querySelector('.page-title')?.textContent?.trim() === 'Equity Valuation Plan',
     'Opening a subject plan did not render the selected subject.');
-  click('[data-action="nav"][data-page="resources"]');
-  assert(visibleText().includes('FROM SSEI') && visibleText().includes('Additional Practice Questions'),
-    'SSEI materials page must show both source-labeled resources.');
-  assert(window.document.querySelectorAll('input[data-material-key]').length === 2,
-    'SSEI material upload controls are missing.');
+  click('[data-action="nav"][data-page="notes"]');
+  assert(window.document.querySelectorAll('.study-note-card').length >= 10, 'Curated study notes were not integrated into main Notes.');
+  assert(visibleText().includes('SSEI') && visibleText().includes('Curriculum'), 'Notes must show inline SSEI and Curriculum labels.');
+  assert(!visibleText().includes('SSEI notes and practice sets'), 'SSEI content must not be presented as a separate resource section.');
+  click('[data-action="nav"][data-page="questions"]');
+  assert(visibleText().includes('34 total available'), 'The question bank should include the new curriculum-derived practice questions.');
+  const supplementalQuestion = window.document.querySelector('[data-action="open-question"][data-qid="q17"]');
+  assert(supplementalQuestion, 'New Curriculum-tagged question q17 is missing from the question bank.');
+  supplementalQuestion.click();
+  assert(window.document.querySelector('.question-source-tag')?.textContent?.trim() === 'Curriculum', 'Supplemental practice question should show the Curriculum source tag.');
+  const supplementalAnswer = window.document.querySelector('input[name="answer"][value="B"]');
+  assert(supplementalAnswer, 'Supplemental FCFF question answer options did not render.');
+  supplementalAnswer.click();
+  click('[data-action="submit-answer"]');
+  assert(window.document.querySelector('.feedback-card')?.textContent.includes('Correct'), 'Supplemental practice question should provide worked feedback.');
 
   click('[data-action="nav"][data-page="practice"]');
   const answer = window.document.querySelector('input[name="answer"]');
@@ -153,7 +165,7 @@ const visibleText = () => window.document.getElementById('app').textContent || '
 
   assert(runtimeErrors.length === 0, 'Runtime errors: ' + runtimeErrors.join(' | '));
   assert(consoleErrors.length === 0, 'DOM/browser errors: ' + consoleErrors.join(' | '));
-  console.log('UI smoke test passed: startup, 17 navigation pages, all ten subject cards, subject status persistence, SSEI resource cards, Equity practice, mocks, themes, settings, notes and flashcards.');
+  console.log('UI smoke test passed: startup, 16 navigation pages, all ten subject cards, subject status persistence, integrated SSEI/Curriculum notes, source-tagged supplemental practice, mock flow, themes, settings, notes and flashcards.');
   dom.window.close();
 })().catch(error => {
   console.error(error.stack || error);

@@ -29,7 +29,8 @@ jobs:
           grep -q 'function renderPractice' app.js
           grep -q 'function renderQuestionBuilder' app.js
           grep -q 'function renderSubjects' app.js
-          grep -q 'function renderResources' app.js
+          grep -q 'const STUDY_NOTES' app.js
+          grep -q "sourceLabel:'Curriculum'" app.js
       - name: Install UI smoke-test dependency
         run: npm install --no-save --no-package-lock jsdom@26 eslint@9 globals@16
       - name: Lint browser JavaScript for undefined identifiers
