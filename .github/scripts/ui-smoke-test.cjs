@@ -4,6 +4,7 @@ const { JSDOM, VirtualConsole } = require('jsdom');
 
 const html = fs.readFileSync('index.html', 'utf8');
 const appSource = fs.readFileSync('app.js', 'utf8');
+const earlyAssert = (condition, message) => { if (!condition) throw new Error(message); };
 
 const actionNames = [...new Set([...appSource.matchAll(/data-action=["']([^"']+)["']/g)].map(match => match[1]))];
 const handledActions = new Set([...appSource.matchAll(/\ba===['"]([^'"]+)['"]/g)].map(match => match[1]));
@@ -33,18 +34,18 @@ if (visualMaps !== 9) throw new Error('Expected nine visual memory maps; found '
 if (!appSource.includes('function renderGordonSensitivityGraph') || !appSource.includes('function renderGrowthFadeGraph')) {
   throw new Error('The two illustrative learning graphs are missing.');
 }
-assert(appSource.includes("function sourcePlan(pdfPages)"), 'The source vault must plan the complete curriculum page range.');
-assert(appSource.includes("type='Curriculum text'"), 'The source vault must index learning text and example/exhibit pages.');
-assert(appSource.includes("function reconcileImportedBookQuestions()"), 'Saved question mappings must be repaired from local source pages at startup.');
-assert(!appSource.includes("'lm1-valuation-foundations'"), 'A hand-written passage must never be used as a fallback for a source-book question.');
-assert(!appSource.includes('const QUESTION_SET_DEFINITIONS = ['), 'The old arbitrary q-number-to-passage mapping must be removed.');
+earlyAssert(appSource.includes("function sourcePlan(pdfPages)"), 'The source vault must plan the complete curriculum page range.');
+earlyAssert(appSource.includes("type='Curriculum text'"), 'The source vault must index learning text and example/exhibit pages.');
+earlyAssert(appSource.includes("function reconcileImportedBookQuestions()"), 'Saved question mappings must be repaired from local source pages at startup.');
+earlyAssert(!appSource.includes("'lm1-valuation-foundations'"), 'A hand-written passage must never be used as a fallback for a source-book question.');
+earlyAssert(!appSource.includes('const QUESTION_SET_DEFINITIONS = ['), 'The old arbitrary q-number-to-passage mapping must be removed.');
 
 // Exercise the real parser with a multiline source heading and a standalone question.
 const parserStart = appSource.indexOf('function cleanSourceLine(line) {');
 const parserEnd = appSource.indexOf('\nfunction parseSourceOptions(stem)', parserStart);
 const helperStart = appSource.indexOf('function sourceQuestionNumber(q) {');
 const helperEnd = appSource.indexOf('\nconst FORMULAS = [', helperStart);
-assert(parserStart >= 0 && parserEnd > parserStart && helperStart >= 0 && helperEnd > helperStart,
+earlyAssert(parserStart >= 0 && parserEnd > parserStart && helperStart >= 0 && helperEnd > helperStart,
   'Source parser functions could not be isolated for regression testing.');
 const parserContext = {
   MODULES:[{id:'m1',no:1,questionCount:5,title:'Test Learning Module'}],
@@ -84,17 +85,17 @@ const fixturePages=[{id:'m1-practice-41',module:'m1',printedPage:41,type:'Practi
   'C. Third choice'
 ].join('\n')}];
 const parsedFixture=parserContext.splitNumberedSourceBlocks(fixturePages,'m1','Practice problems',5);
-assert(parsedFixture.blocks.length===5,'Parser fixture should retain all five question stems.');
+earlyAssert(parsedFixture.blocks.length===5,'Parser fixture should retain all five question stems.');
 const fixture1=parsedFixture.blocks.find(block=>block.num===1),fixture2=parsedFixture.blocks.find(block=>block.num===2),fixture4=parsedFixture.blocks.find(block=>block.num===4),fixture5=parsedFixture.blocks.find(block=>block.num===5);
-assert(fixture1.sourceSetId==='source-m1-q1-4'&&fixture4.sourceSetId==='source-m1-q1-4',
+earlyAssert(fixture1.sourceSetId==='source-m1-q1-4'&&fixture4.sourceSetId==='source-m1-q1-4',
   'Questions 1–4 must be linked by the explicit source range, not an inferred topic mapping.');
-assert(fixture1.passageText.includes('Aster Capital')&&fixture1.passageText.includes('EXHIBIT 1')&&fixture1.passageText.includes('key assumptions'),
+earlyAssert(fixture1.passageText.includes('Aster Capital')&&fixture1.passageText.includes('EXHIBIT 1')&&fixture1.passageText.includes('key assumptions'),
   'The parser must preserve the full context and exhibit text preceding the linked questions.');
-assert(fixture1.passageText===fixture2.passageText&&fixture2.passageText===fixture4.passageText,
+earlyAssert(fixture1.passageText===fixture2.passageText&&fixture2.passageText===fixture4.passageText,
   'All questions in the same source range must share exactly the same passage.');
-assert(fixture1.questionText.startsWith('Which conclusion follows')&&!fixture1.questionText.includes('Aster Capital'),
+earlyAssert(fixture1.questionText.startsWith('Which conclusion follows')&&!fixture1.questionText.includes('Aster Capital'),
   'Shared passage must not be prepended to the individual question stem.');
-assert(!fixture5.sourceSetId&&!fixture5.passageText,
+earlyAssert(!fixture5.sourceSetId&&!fixture5.passageText,
   'A standalone question outside an explicit shared range must not receive an invented passage.');
 
 
