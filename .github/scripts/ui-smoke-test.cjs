@@ -10,7 +10,7 @@ for (const action of actionNames) {
   if (!handledActions.has(action)) throw new Error('Rendered action has no click handler: ' + action);
 }
 const starterQuestionRows = appSource.split('\n').filter(line => /^\s*\{id:'q\d+'/.test(line));
-if (starterQuestionRows.length !== 34) throw new Error('Expected 34 total practice questions; found ' + starterQuestionRows.length);
+if (starterQuestionRows.length !== 60) throw new Error('Expected 60 total practice questions; found ' + starterQuestionRows.length);
 for (const line of starterQuestionRows) {
   const id = line.match(/id:'(q\d+)'/)?.[1];
   const correct = line.match(/correct:'([A-Z])'/)?.[1];
@@ -59,13 +59,13 @@ const visibleText = () => window.document.getElementById('app').textContent || '
   assert(!visibleText().includes('Dashboard could not render'), 'App rendered its fatal-error fallback.');
 
   const pages = [
-    ['dashboard', 'Overview'], ['subjects', 'All 10 Subjects'],
-    ['learn', 'Equity Study Guides'], ['curriculum', 'Equity Curriculum Explorer'],
-    ['questions', 'Equity Question Bank'], ['practice', 'Equity Practice'],
-    ['itemset', 'Equity Item-Set Practice'], ['mock', 'Equity Mock Exams'],
+    ['dashboard', 'Dashboard'], ['subjects', 'All Subjects'],
+    ['learn', 'Study Guides'], ['curriculum', 'Curriculum Map'],
+    ['questions', 'Question Bank'], ['practice', 'Practice'],
+    ['itemset', 'Item Sets'], ['mock', 'Mock Exams'],
     ['formulas', 'Formula Library'], ['flashcards', 'Flashcards'],
-    ['revision', 'Revision Centre'], ['analytics', 'Performance Analytics'],
-    ['notes', 'Bookmarks & Notes'], ['source', 'Equity Source Import'],
+    ['revision', 'Revision Queue'], ['analytics', 'Performance Analytics'],
+    ['notes', 'Study Notes & Bookmarks'],
     ['questionbuilder', 'Question Builder'], ['settings', 'Profile & Settings']
   ];
   for (const [page, title] of pages) {
@@ -79,6 +79,9 @@ const visibleText = () => window.document.getElementById('app').textContent || '
 
   click('[data-action="nav"][data-page="dashboard"]');
   assert(visibleText().includes('One dashboard. All 10 CFA Level II subjects.'), 'Dashboard should identify the all-subject hub.');
+  assert([...window.document.querySelectorAll('.nav-item')].every(el => !/Equity/i.test(el.textContent)),
+    'Left navigation should use common, subject-agnostic labels.');
+  assert(!window.document.querySelector('#app input[type="file"]'), 'Dashboard should not surface a PDF upload control.');
   assert(!window.document.querySelector('[data-action="nav"][data-page="resources"]'), 'The standalone SSEI resource navigation should be removed.');
   click('[data-action="nav"][data-page="subjects"]');
   assert(window.document.querySelectorAll('.subject-card').length === 10, 'Subject explorer must render all ten Level II topics.');
@@ -93,11 +96,11 @@ const visibleText = () => window.document.getElementById('app').textContent || '
   assert(window.document.querySelector('.page-title')?.textContent?.trim() === 'Equity Valuation Plan',
     'Opening a subject plan did not render the selected subject.');
   click('[data-action="nav"][data-page="notes"]');
-  assert(window.document.querySelectorAll('.study-note-card').length >= 10, 'Curated study notes were not integrated into main Notes.');
+  assert(window.document.querySelectorAll('.study-note-card').length >= 70, 'Full section-by-section curriculum notes and illustration summaries were not integrated into main Notes.');
   assert(visibleText().includes('SSEI') && visibleText().includes('Curriculum'), 'Notes must show inline SSEI and Curriculum labels.');
   assert(!visibleText().includes('SSEI notes and practice sets'), 'SSEI content must not be presented as a separate resource section.');
   click('[data-action="nav"][data-page="questions"]');
-  assert(visibleText().includes('34 total available'), 'The question bank should include the new curriculum-derived practice questions.');
+  assert(visibleText().includes('60 total available'), 'The question bank should include the expanded curriculum-derived practice questions.');
   const supplementalQuestion = window.document.querySelector('[data-action="open-question"][data-qid="q17"]');
   assert(supplementalQuestion, 'New Curriculum-tagged question q17 is missing from the question bank.');
   supplementalQuestion.click();
@@ -107,6 +110,7 @@ const visibleText = () => window.document.getElementById('app').textContent || '
   supplementalAnswer.click();
   click('[data-action="submit-answer"]');
   assert(window.document.querySelector('.feedback-card')?.textContent.includes('Correct'), 'Supplemental practice question should provide worked feedback.');
+  click('[data-action="next-question"]');
 
   click('[data-action="nav"][data-page="practice"]');
   const answer = window.document.querySelector('input[name="answer"]');
@@ -148,6 +152,12 @@ const visibleText = () => window.document.getElementById('app').textContent || '
     'Add formula to notes action did not persist a note.');
 
   click('[data-action="nav"][data-page="itemset"]');
+  const passages = window.document.querySelectorAll('.itemset-passage-block');
+  const relatedQuestions = window.document.querySelectorAll('.itemset-related-block');
+  assert(passages.length >= 6, 'Case-based sets should show a separate passage block for each shared vignette.');
+  assert(passages.length === relatedQuestions.length, 'Each passage must have a separate related-questions block.');
+  assert(visibleText().includes('PASSAGE / CASE FACTS') && visibleText().includes('Related questions'),
+    'Item sets must visibly separate passages from linked questions.');
   const itemSetQuestion = window.document.querySelector('[data-action="open-question"][data-qid]');
   assert(itemSetQuestion, 'Item-set practice did not provide a working question entry.');
   itemSetQuestion.click();
@@ -166,7 +176,7 @@ const visibleText = () => window.document.getElementById('app').textContent || '
 
   assert(runtimeErrors.length === 0, 'Runtime errors: ' + runtimeErrors.join(' | '));
   assert(consoleErrors.length === 0, 'DOM/browser errors: ' + consoleErrors.join(' | '));
-  console.log('UI smoke test passed: startup, 16 navigation pages, all ten subject cards, subject status persistence, integrated SSEI/Curriculum notes, source-tagged supplemental practice, mock flow, themes, settings, notes and flashcards.');
+  console.log('UI smoke test passed: generic navigation, all ten subject cards, topic status persistence, 70+ integrated curriculum notes and illustration summaries, 60 original practice questions with source labels, distinct passage/related-question blocks, theme/settings/notes/flashcards and timed mock submission.');
   dom.window.close();
 })().catch(error => {
   console.error(error.stack || error);
