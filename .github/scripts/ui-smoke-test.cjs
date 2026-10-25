@@ -1,6 +1,9 @@
 const fs = require('node:fs');
 const { JSDOM, VirtualConsole } = require('jsdom');
 
+const html = fs.readFileSync('index.html', 'utf8');
+const appSource = fs.readFileSync('app.js', 'utf8');
+
 const actionNames = [...new Set([...appSource.matchAll(/data-action=["']([^"']+)["']/g)].map(match => match[1]))];
 const handledActions = new Set([...appSource.matchAll(/\ba===['"]([^'"]+)['"]/g)].map(match => match[1]));
 for (const action of actionNames) {
@@ -20,8 +23,6 @@ for (const line of starterQuestionRows) {
   if (!correctRationale || !/^Correct\b/i.test(correctRationale.text)) throw new Error(id + ': correct answer rationale is missing or contradicts its key.');
   if (rationales.some(rationale => rationale.key !== correct && /^Correct\b/i.test(rationale.text))) throw new Error(id + ': a distractor rationale is labelled correct.');
 }
-const html = fs.readFileSync('index.html', 'utf8');
-const appSource = fs.readFileSync('app.js', 'utf8');
 const virtualConsole = new VirtualConsole();
 const consoleErrors = [];
 virtualConsole.on('jsdomError', err => consoleErrors.push(err.message));
