@@ -53,3 +53,10 @@ The app stores learner attempts and notes in this browser's localStorage, and ex
 ## Curriculum source
 
 The curriculum outline and printed-page mappings are based on the CFA Program Curriculum 2026 Level II Equity Valuation volume supplied for this study project. Extraction counts are displayed as candidates, not as verified question totals.
+
+
+### Source mapping integrity
+
+- Curriculum item sets are grouped only when the current source archive contains an explicit question-range heading and a non-empty shared passage. Stale inferred mappings are not trusted.
+- Item-set cards display full question stems and answer choices inline. If a source passage cannot be verified, the question is marked as unverified instead of attaching a guessed passage.
+- Complete inventory coverage of curriculum examples, exhibits, practice questions and solutions depends on indexing the original PDF in Source Vault. The PDF is not bundled in the public static deployment.

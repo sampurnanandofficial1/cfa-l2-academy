@@ -681,3 +681,16 @@ td { color: #cfdae8; }
  .source-inventory-row .btn { margin-left:55px; }
  .curriculum-coverage-strip { align-items:flex-start; flex-direction:column; }
 }
+
+
+/* Item-set integrity: show the entire stem and options in the set view */
+.itemset-full-question { display:block; padding:0; overflow:hidden; }
+.itemset-full-question>summary { display:flex; align-items:flex-start; gap:10px; padding:13px; cursor:pointer; list-style:none; }
+.itemset-full-question>summary::-webkit-details-marker { display:none; }
+.itemset-question-fulltext { padding:0 15px 15px 49px; }
+.itemset-question-stem { font-size:12px; line-height:1.85; white-space:pre-wrap; overflow-wrap:anywhere; color:var(--text); }
+.itemset-question-options { margin:12px 0; padding-left:22px; }
+.itemset-question-options li { padding:5px 0 5px 4px; color:var(--text); font-size:12px; line-height:1.7; }
+.itemset-passage-block p { white-space:pre-wrap; overflow-wrap:anywhere; }
+.itemset-passage-block { align-self:start; }
+@media(max-width:560px) { .itemset-question-fulltext { padding:0 12px 13px; } .itemset-full-question>summary { padding:11px; } }

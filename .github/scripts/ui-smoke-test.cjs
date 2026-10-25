@@ -460,3 +460,9 @@ const nav = page => click('.sidebar .nav-item[data-page="' + page + '"]');
   dom.window.close();
   process.exitCode = 1;
 });
+
+
+if (!appSource.includes("String(block.passageText||'').trim()")) throw new Error('Item sets must require a recovered passage.');
+if (appSource.includes("if(q.sourceMappingVersion===2&&q.sourceSetId")) throw new Error('Stale inferred source mappings must not override the current PDF map.');
+if (!appSource.includes("itemset-question-stem") || !appSource.includes("itemset-question-options")) throw new Error('Item-set view must display full question stems and answer choices.');
+if (!appSource.includes("No substitute text is shown.")) throw new Error('Missing passages must be flagged, not substituted.');
