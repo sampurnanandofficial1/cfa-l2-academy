@@ -144,7 +144,11 @@ const nav = page => click('.sidebar .nav-item[data-page="' + page + '"]');
   supplementalQuestion.click();
   assert(window.document.querySelector('.question-source-tag')?.textContent?.trim() === 'Curriculum',
     'Supplemental practice question should show the Curriculum source tag.');
-  assert(window.document.querySelector('.practice-layout .itemset-passage-block'), 'Opening a question should keep its shared passage visible above the question.');
+  const activePassage = window.document.querySelector('.content .itemset-passage-block');
+  const activeQuestionLayout = window.document.querySelector('.practice-layout');
+  assert(activePassage && activeQuestionLayout &&
+    (activePassage.compareDocumentPosition(activeQuestionLayout) & window.Node.DOCUMENT_POSITION_FOLLOWING),
+    'Opening a question should show its shared passage in a separate container before the question workspace.');
   assert(window.document.querySelectorAll('.set-question-link').length >= 4, 'The opened question should expose navigation to related questions in its set.');
   const supplementalAnswer = window.document.querySelector('input[name="answer"][value="B"]');
   assert(supplementalAnswer, 'Supplemental FCFF question answer options did not render.');
