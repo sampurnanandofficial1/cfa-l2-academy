@@ -142,6 +142,7 @@ function loadState() {
 let state = loadState();
 let ui = {page:'dashboard',query:'',filterModule:'all',filterType:'all',filterStatus:'all',currentQuestion:'q1',selectedAnswer:null,constructedAnswer:'',constructedAssessmentSaved:false,answerShown:false,practiceStartedAt:Date.now(),sourcePages:[],sourcePageIndex:0,sourceSearch:'',sourceType:'all',sourceExpanded:null,studyModule:'m1',flashIndex:0,flashRevealed:false,exam:null,toastTimer:null};
 let toastTimer = null;
+let examInterval = null;
 
 function saveState() {
   try { localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); } catch(e) { notify('Browser storage is full. Export your learner data and clear older imported metadata.',true); }
