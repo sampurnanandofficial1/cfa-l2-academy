@@ -295,11 +295,11 @@ function renderMapDiagram(map) {
   return '<details class="visual-map-card"><summary class="visual-map-summary"><span class="visual-map-module">LM '+getModule(map.module).no+'</span><span class="visual-map-heading">'+esc(map.title)+'</span><span class="visual-map-strap">'+esc(map.strap)+'</span><span class="visual-map-chevron">＋</span></summary><div class="visual-map-body"><div class="memory-map-diagram">'+rows+'</div><div class="memory-takeaway"><strong>Memory hook</strong><span>'+esc(map.memory)+'</span></div><p class="map-takeaway-text">'+esc(map.takeaway)+'</p><button class="btn secondary small" data-action="study-module" data-module="'+esc(map.module)+'">Open LM '+getModule(map.module).no+' guide →</button></div></details>';
 }
 function renderGordonSensitivityGraph() {
-  const w=720,h=300,pl=58,pr=22,pt=25,pb=46,gw=w-pl-pr,gh=h-pt-pb,yMax=70;
+  const w=720,h=300,pl=58,pr=22,pt=25,pb=46,gw=w-pl-pr,gh=h-pt-pb,yMax=85;
   const gx=g=>pl+((g-0.5)/(6.5-0.5))*gw, gy=v=>pt+gh-(v/yMax)*gh;
   const growths=[0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5];
   const series=[{r:9,cls:'series-a'},{r:11,cls:'series-b'},{r:13,cls:'series-c'}];
-  const grid=[0,10,20,30,40,50,60,70].map(v=>'<line x1="'+pl+'" y1="'+gy(v)+'" x2="'+(w-pr)+'" y2="'+gy(v)+'" class="chart-grid"/><text x="'+(pl-10)+'" y="'+(gy(v)+4)+'" text-anchor="end" class="chart-label">'+v+'</text>').join('');
+  const grid=[0,10,20,30,40,50,60,70,80].map(v=>'<line x1="'+pl+'" y1="'+gy(v)+'" x2="'+(w-pr)+'" y2="'+gy(v)+'" class="chart-grid"/><text x="'+(pl-10)+'" y="'+(gy(v)+4)+'" text-anchor="end" class="chart-label">'+v+'</text>').join('');
   const ticks=[1,2,3,4,5,6].map(v=>'<line x1="'+gx(v)+'" y1="'+(pt+gh)+'" x2="'+gx(v)+'" y2="'+(pt+gh+5)+'" class="chart-axis"/><text x="'+gx(v)+'" y="'+(pt+gh+22)+'" text-anchor="middle" class="chart-label">'+v+'%</text>').join('');
   const paths=series.map(s=>'<path class="chart-line '+s.cls+'" d="'+growths.map((g,i)=>(i?'L':'M')+gx(g).toFixed(1)+','+gy(2/(s.r/100-g/100)).toFixed(1)).join(' ')+'"/>').join('');
   const legend=series.map(s=>'<span class="chart-legend-item"><i class="legend-swatch '+s.cls+'"></i>r = '+s.r+'%</span>').join('');
@@ -984,6 +984,7 @@ function handleClick(e) {
   if(a==='nav'){ui.query='';if(d.page==='questions'&&d.module){ui.filterModule=d.module;ui.questionQuery='';}navigate(d.page,{module:d.module||null});if(d.page==='questions'&&d.module){ui.filterModule=d.module;renderApp();}return;}
   if(a==='subject-detail'){ui.currentSubject=d.subject||'equity';ui.page='subjectdetail';renderAppSafe();window.scrollTo(0,0);return;}
   if(a==='menu'){document.getElementById('sidebar')?.classList.toggle('open');return;}
+  if(a==='clear-note-search'){ui.noteSearch='';renderApp();return;}
   if(a==='theme'){state.theme=state.theme==='dark'?'light':'dark';saveState();renderApp();return;}
   if(a==='open-question'){ui.constructedAnswer='';ui.constructedAssessmentSaved=false;openQuestion(d.qid);return;}
   if(a==='study-module'){ui.studyModule=d.module;ui.page='learn';ui.selectedAnswer=null;ui.answerShown=false;renderApp();return;}
@@ -1063,6 +1064,7 @@ document.addEventListener('input',function(e){
   if(e.target.id==='questionSearch'){ui.questionQuery=e.target.value;ui.query='';const node=document.querySelector('[data-live-question-list]');renderApp();const inp=document.getElementById('questionSearch');if(inp){inp.focus();inp.setSelectionRange(ui.questionQuery.length,ui.questionQuery.length);}return;}
   if(e.target.id==='sourceSearch'){ui.sourceSearch=e.target.value;ui.sourcePageIndex=0;const pos=e.target.selectionStart;renderApp();const inp=document.getElementById('sourceSearch');if(inp){inp.focus();inp.setSelectionRange(pos,pos);}return;}
   if(e.target.id==='formulaSearch'){ui.formulaQuery=e.target.value;const pos=e.target.selectionStart;renderApp();const inp=document.getElementById('formulaSearch');if(inp){inp.focus();inp.setSelectionRange(pos,pos);}return;}
+  if(e.target.id==='studyNoteSearch'){ui.noteSearch=e.target.value;const pos=e.target.selectionStart;renderApp();const inp=document.getElementById('studyNoteSearch');if(inp){inp.focus();inp.setSelectionRange(pos,pos);}return;}
   if(e.target.id==='curriculumSearch'){ui.curriculumQuery=e.target.value;const pos=e.target.selectionStart;renderApp();const inp=document.getElementById('curriculumSearch');if(inp){inp.focus();inp.setSelectionRange(pos,pos);}return;}
 });
 document.addEventListener('keydown',function(e){
