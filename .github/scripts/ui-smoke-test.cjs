@@ -270,11 +270,11 @@ const nav = page => click('.sidebar .nav-item[data-page="' + page + '"]');
       'Each displayed group must have a separate context container: ' + set.querySelector('.card-title')?.textContent);
     assert(set.querySelectorAll('.itemset-questions-container').length === 1,
       'Each displayed group must have a separate question container.');
-    displayedQids.push(...[...set.querySelectorAll('.itemset-questions-container .question-row')].map(row=>row.dataset.qid));
+    displayedQids.push(...[...set.querySelectorAll('.itemset-questions-container .itemset-full-question')].map(row=>row.getAttribute('data-question-id')));
   }
   assert(displayedQids.length === 60 && new Set(displayedQids).size === 60,
     'All 60 built-in questions must appear exactly once across the item-set bank.');
-  assert(builtInSets.some(set=>set.textContent.includes('STANDALONE QUESTION CONTEXT')),
+  assert(builtInSets.some(set=>set.textContent.includes('SOURCE QUESTION · PASSAGE NOT VERIFIED')),
     'Questions without a shared passage should be visibly marked as standalone.');
   const supplementalQuestion = window.document.querySelector('[data-action="open-question"][data-qid="q17"]');
   assert(supplementalQuestion, 'Curriculum-tagged question q17 is missing from the question bank.');
