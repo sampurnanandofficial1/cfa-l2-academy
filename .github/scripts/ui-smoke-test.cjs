@@ -95,8 +95,56 @@ earlyAssert(fixture1.passageText===fixture2.passageText&&fixture2.passageText===
   'All questions in the same source range must share exactly the same passage.');
 earlyAssert(fixture1.questionText.startsWith('Which conclusion follows')&&!fixture1.questionText.includes('Aster Capital'),
   'Shared passage must not be prepended to the individual question stem.');
+
 earlyAssert(!fixture5.sourceSetId&&!fixture5.passageText,
   'A standalone question outside an explicit shared range must not receive an invented passage.');
+
+// Long curriculum sets must retain the full range stated by the source, not be split into synthetic subgroups.
+const longRangeLines=[
+  'PRACTICE PROBLEMS 41','The following information relates to questions','1-8',
+  'Global-Guardian Capital is a rapidly growing international investment firm.',
+  'The shared passage contains the full operating context and its key assumptions.',
+  'Statement 3: A distressed securities fund considers the liquidation premise.',
+  'EXHIBIT 1: Forecast and valuation inputs','Revenue and free-cash-flow assumptions for the shared case.',
+  '1. What conclusion follows from the shared case?','A. First choice','B. Second choice','C. Third choice',
+  '2. Which value premise may matter to the distressed fund?','A. Fair value','B. Liquidation value','C. Fair market value',
+  '3. Which further statement is supported?','A. First','B. Second','C. Third',
+  '4. Which assumption is relevant?','A. First','B. Second','C. Third',
+  '5. Which valuation choice is defensible?','A. First','B. Second','C. Third',
+  '6. Which input should be reviewed?','A. First','B. Second','C. Third',
+  '7. Which interpretation follows?','A. First','B. Second','C. Third',
+  '8. Which conclusion best fits the case?','A. First','B. Second','C. Third',
+  '9. This question starts a separate item with no shared-passage heading.','A. First','B. Second','C. Third'
+].join('\n');
+const longRangePages=[{id:'m1-practice-41',module:'m1',printedPage:41,pdfPage:51,type:'Practice problems',text:longRangeLines}];
+const longRangeParsed=parserContext.splitNumberedSourceBlocks(longRangePages,'m1','Practice problems',9);
+const lr1=longRangeParsed.blocks.find(block=>block.num===1),lr8=longRangeParsed.blocks.find(block=>block.num===8),lr9=longRangeParsed.blocks.find(block=>block.num===9);
+earlyAssert(longRangeParsed.blocks.length===9,'Long-range fixture must retain all nine numbered questions.');
+earlyAssert(lr1.sourceSetId==='source-m1-q1-8'&&lr8.sourceSetId==='source-m1-q1-8'&&lr1.sourceGroupTo===8,
+  'An explicit Questions 1–8 heading must not be split into invented smaller sets.');
+earlyAssert(lr1.passageText===lr8.passageText&&lr1.passageText.includes('Global-Guardian')&&lr1.passageText.includes('EXHIBIT 1')&&lr1.passageText.includes('key assumptions'),
+  'All linked questions must share the exact same full passage and exhibit text.');
+earlyAssert(lr1.questionText.startsWith('What conclusion')&&!lr1.questionText.includes('Global-Guardian'),
+  'The passage must stay separate from the individual question stem.');
+earlyAssert(!lr9.sourceSetId&&!lr9.passageText,'A question outside the declared 1–8 range must not inherit the passage.');
+
+// Verify the live curriculum inventory using local fixture pages, without bundling source text in the public app.
+parserContext.MODULES[0].questionCount=9;
+parserContext.ui.sourcePages=[
+  {id:'m1-curriculum-10',module:'m1',printedPage:10,pdfPage:20,type:'Curriculum text',text:'EXAMPLE 1\nA fully indexed teaching example\nEXHIBIT 1: Illustration of assumptions'},
+  longRangePages[0]
+];
+parserContext.ui.sourceBlockIndex=null;parserContext.ui.curriculumInventoryCache=null;
+parserContext.state={shared:{sourceMeta:{fileName:'source-fixture.pdf',importedAt:'test-fixture'}}};
+const inventoryStart=appSource.indexOf('function buildCurriculumInventory()');
+const inventoryEnd=appSource.indexOf('\nfunction renderNotes()',inventoryStart);
+earlyAssert(inventoryStart>=0&&inventoryEnd>inventoryStart,'Curriculum inventory helper could not be isolated.');
+vm.runInContext(appSource.slice(inventoryStart,inventoryEnd),parserContext);
+const inventoryFixture=parserContext.buildCurriculumInventory();
+earlyAssert(inventoryFixture.examples.length===1&&inventoryFixture.exhibits.length===1,
+  'The inventory must enumerate Example and Exhibit headings in source text.');
+earlyAssert(inventoryFixture.questionCount===9&&inventoryFixture.sets.length===1&&inventoryFixture.sets[0].title.includes('1–8')&&inventoryFixture.standalone.length===1,
+  'The inventory must preserve the exact 1–8 source set and list question 9 separately.');
 
 
 const virtualConsole = new VirtualConsole();
@@ -314,6 +362,49 @@ const nav = page => click('.sidebar .nav-item[data-page="' + page + '"]');
   assert(sourceDom.window.document.querySelector('.question-stem')?.textContent.includes('Statements 3 and 4'),'The imported question stem must remain separately visible.');
   assert(sourceErrors.length===0,'Source-session runtime errors: '+sourceErrors.join(' | '));
   sourceDom.window.close();
+
+  const mappedQuestions=Array.from({length:8},(_,i)=>({
+    id:'verified-map-q'+(i+1),module:'m1',topic:'Source range regression',type:'Source MCQ',difficulty:'Needs review',
+    title:'LM 1 · Q'+(i+1)+': mapped case question',stem:'Unique stem token '+(i+1),
+    options:[{key:'A',text:'Choice A'},{key:'B',text:'Choice B'},{key:'C',text:'Choice C'}],correct:'A',
+    sourceBookQuestion:true,bookImported:true,sourceMappingVersion:2,sourceSetId:'source-m1-q1-8',
+    sourceSetTitle:'LM 1 · Source item set (Questions 1–8)',sourceGroupFrom:1,sourceGroupTo:8,
+    sourcePage:'41–43',sourcePdfPage:51,sourceLabel:'Curriculum',verificationStatus:'Needs explanation review'
+  }));
+  const rangeState={version:'1.0.0',activeProfile:'Sampurn Anand',theme:'dark',
+    profiles:{'Sampurn Anand':emptyProfile('Sampurn Anand'),'Aaryani Dogra':emptyProfile('Aaryani Dogra')},
+    shared:{customQuestions:mappedQuestions,sourceMeta:{expectedQuestionCount:222}}};
+  const rangeDom=new JSDOM(html,{url:'https://academy.example.test/cfa-l2-academy/source-range-check',runScripts:'outside-only',pretendToBeVisual:true,virtualConsole:new VirtualConsole()});
+  rangeDom.window.scrollTo=()=>{};
+  rangeDom.window.confirm=()=>true;
+  rangeDom.window.localStorage.setItem('cfa-equity-academy:v1',JSON.stringify(rangeState));
+  const rangeErrors=[];
+  rangeDom.window.addEventListener('error',event=>rangeErrors.push(String(event.message||event.error)));
+  rangeDom.window.eval(appSource);
+  await wait(80);
+  rangeDom.window.document.querySelector('.sidebar .nav-item[data-page="practice"]').click();
+  rangeDom.window.document.querySelector('[data-action="nav"][data-page="questions"]').click();
+  const rangeCard=[...rangeDom.window.document.querySelectorAll('.question-set-card')].find(card=>card.textContent.includes('Source item set (Questions 1–8)'));
+  assert(rangeCard,'Corrected source metadata must render the original Questions 1–8 item set.');
+  assert(rangeCard.querySelectorAll('.itemset-questions-container .question-row').length===8,
+    'All eight questions named by the source range must appear together.');
+  assert(rangeCard.querySelector('.itemset-passage-block')?.textContent.includes('SHARED PASSAGE UNAVAILABLE'),
+    'Without local source pages, the app must report missing passage text rather than guess.');
+  assert(!rangeCard.querySelector('.itemset-passage-block')?.textContent.includes('Global-Guardian'),
+    'An unavailable passage must never be replaced with an unrelated or generic case.');
+  const questionSearch=rangeDom.window.document.getElementById('questionSearch');
+  questionSearch.value='Unique stem token 4';
+  questionSearch.dispatchEvent(new rangeDom.window.Event('input',{bubbles:true}));
+  const filteredRangeCard=[...rangeDom.window.document.querySelectorAll('.question-set-card')].find(card=>card.textContent.includes('Source item set (Questions 1–8)'));
+  assert(filteredRangeCard&&filteredRangeCard.querySelectorAll('.itemset-questions-container .question-row').length===8,
+    'Filtering a single question must keep all eight questions in the matching item set.');
+  assert(rangeDom.window.document.querySelector('.question-bank-summary')?.textContent.includes('1 questions match filters'),
+    'The bank must distinguish one filter match from the eight sibling questions displayed.');
+  filteredRangeCard.querySelector('[data-action="open-question"][data-qid="verified-map-q4"]').click();
+  assert(rangeDom.window.document.querySelectorAll('.set-question-link').length===8,
+    'Question navigation must follow the full eight-question source range.');
+  assert(rangeErrors.length===0,'Source-range UI errors: '+rangeErrors.join(' | '));
+  rangeDom.window.close();
 
   nav('practice');
   click('[data-action="nav"][data-page="mock"]');
