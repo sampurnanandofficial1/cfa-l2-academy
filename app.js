@@ -842,8 +842,67 @@ function renderStudyNoteCard(n) {
   const paragraphs=String(n.body||'').split(/\n\s*\n/).flatMap(function(part){const sentences=part.match(/[^.!?]+[.!?]+(?:\s|$)|[^.!?]+$/g)||[part];const groups=[];for(let i=0;i<sentences.length;i+=3)groups.push(sentences.slice(i,i+3).join(' ').trim());return groups.filter(Boolean);});
   return '<details class="study-note-card" data-search="'+esc((n.title+' '+n.body+' '+n.sourceRef+' '+n.source).toLowerCase())+'"><summary class="study-note-summary"><span class="badge '+(n.source==='SSEI'?'blue':'muted')+'">'+esc(n.source)+'</span><span class="study-note-title">'+esc(n.title)+'</span><span class="study-note-meta">'+esc(n.sourceRef)+'</span><span class="study-note-chevron">＋</span></summary><div class="study-note-body"><div class="study-note-topic">'+esc(getModule(n.module).title)+'</div><h4 class="study-note-section-label">Detailed explanation</h4>'+paragraphs.map(function(part){return '<p>'+esc(part)+'</p>';}).join('')+(n.memory?'<div class="note-memory"><strong>Memory hook</strong><span>'+esc(n.memory)+'</span></div>':'')+(n.examTrap?'<div class="note-exam-trap"><strong>Exam trap</strong><span>'+esc(n.examTrap)+'</span></div>':'')+'</div></details>';
 }
+
+function buildCurriculumInventory() {
+  const pages=ui.sourcePages||[],meta=state.shared.sourceMeta||{};
+  const signature=pages.length+'|'+(meta.importedAt||'')+'|'+(meta.fileName||'');
+  if(ui.curriculumInventoryCache&&ui.curriculumInventoryCache.signature===signature)return ui.curriculumInventoryCache.data;
+  const textPages=pages.filter(function(p){return p.type==='Curriculum text';}),examples=[],exhibits=[],seen=new Set();
+  const tidy=function(s){return String(s||'').replace(/\s+/g,' ').trim();};
+  textPages.forEach(function(p){
+    const lines=String(p.text||'').split('\n');
+    for(let i=0;i<lines.length;i++){
+      const example=lines[i].match(/^\s*EXAMPLE\s+(\d+)\s*$/i);
+      if(example){
+        const next=[];
+        for(let j=i+1;j<lines.length&&next.length<2;j++){
+          const value=tidy(lines[j]);if(!value)continue;
+          if(/^(?:EXAMPLE|EXHIBIT)\s+\d+/i.test(value)||/^LEARNING MODULE\s+\d+/i.test(value))break;
+          if(/^(?:Learning Module \d+|Equity Valuation|Practice Problems|Solutions)$/i.test(value))continue;
+          next.push(value);
+        }
+        const isSubtitle=/^(?:Historical|Illustrative|Numerical|Hypothetical)\s+Example/i.test(next[0]||'');
+        const title=next.length>1&&isSubtitle?next.slice(0,2).join(' — '):(next[0]||('Example '+example[1]));
+        const id='example-'+p.module+'-'+example[1]+'-'+p.printedPage;
+        if(!seen.has(id)){seen.add(id);examples.push({id:id,kind:'Example',number:Number(example[1]),title:title,module:p.module,printedPage:p.printedPage,pdfPage:p.pdfPage,pageId:p.id});}
+        continue;
+      }
+      const exhibit=lines[i].match(/^\s*EXHIBIT\s+(\d+)\s*:\s*(.*?)\s*$/i)||lines[i].match(/^\s*EXHIBIT\s+(\d+)\s*$/i);
+      if(exhibit){
+        const number=Number(exhibit[1]);let title=tidy(exhibit[2]||'');
+        if(!title)for(let j=i+1;j<lines.length&&j<=i+3;j++){
+          const value=tidy(lines[j]);if(!value)continue;
+          if(/^(?:EXAMPLE|EXHIBIT)\s+\d+/i.test(value)||/^(?:PRACTICE PROBLEMS|SOLUTIONS)$/i.test(value))break;
+          title=value;break;
+        }
+        const id='exhibit-'+p.module+'-'+number+'-'+p.printedPage;
+        if(!seen.has(id)){seen.add(id);exhibits.push({id:id,kind:'Exhibit',number:number,title:title||('Exhibit '+number),module:p.module,printedPage:p.printedPage,pdfPage:p.pdfPage,pageId:p.id});}
+      }
+    }
+  });
+  const index=buildSourceQuestionBlockIndex(),blocks=Object.keys(index).map(function(k){return index[k];}),groupMap=new Map();
+  blocks.forEach(function(b){
+    if(b.sourceSetId&&!groupMap.has(b.sourceSetId))groupMap.set(b.sourceSetId,{
+      id:b.sourceSetId,title:b.sourceSetTitle||('LM '+getModule(b.module).no+' · Questions '+b.sourceGroupFrom+'–'+b.sourceGroupTo),
+      module:b.module,from:b.sourceGroupFrom,to:b.sourceGroupTo,printedPage:b.passagePage??b.page,
+      pdfPage:b.passagePdfPage??((b.passagePage??b.page)+10),passageAvailable:!!b.passageText,
+      questionCount:Number(b.sourceGroupTo)-Number(b.sourceGroupFrom)+1
+    });
+  });
+  const sets=Array.from(groupMap.values()).sort(function(a,b){return getModule(a.module).no-getModule(b.module).no||a.from-b.from;});
+  const standalone=blocks.filter(function(b){return !b.sourceSetId;}).map(function(b){return {id:'standalone-'+b.module+'-'+b.num,title:'LM '+getModule(b.module).no+' · Question '+b.num,module:b.module,number:b.num,printedPage:b.page,pdfPage:b.page+10};});
+  const data={indexed:textPages.length>0,pages:pages.length,textPages:textPages.length,examples:examples,exhibits:exhibits,sets:sets,standalone:standalone,questionCount:blocks.length,expectedQuestionCount:MODULES.reduce(function(sum,m){return sum+(m.questionCount||0);},0),passageAvailableSets:sets.filter(function(s){return s.passageAvailable;}).length};
+  ui.curriculumInventoryCache={signature:signature,data:data};
+  return data;
+}
+function renderCurriculumInventoryRecord(item) {
+  return '<div class="source-inventory-row"><div class="source-inventory-number">'+(item.kind==='Example'?'Ex. ':'Exh. ')+item.number+'</div><div class="source-inventory-main"><strong>'+esc(item.title)+'</strong><small>LM '+getModule(item.module).no+' · printed p. '+item.printedPage+' · PDF p. '+item.pdfPage+'</small></div><button class="btn secondary small" data-action="open-source-location" data-module="'+esc(item.module)+'" data-printed-page="'+item.printedPage+'">Open original page →</button></div>';
+}
+function renderQuestionSetInventoryRecord(item) {
+  return '<div class="source-inventory-row"><div class="source-inventory-number">LM '+getModule(item.module).no+'</div><div class="source-inventory-main"><strong>'+esc(item.title)+'</strong><small>Printed p. '+item.printedPage+' · PDF p. '+item.pdfPage+' · '+item.questionCount+' linked questions · '+(item.passageAvailable?'passage text available':'passage text unavailable')+'</small></div><button class="btn secondary small" data-action="find-item-set" data-set-id="'+esc(item.id)+'" data-set-title="'+esc(item.title)+'">Open set →</button></div>';
+}
 function renderNotes() {
-  const p=profile(),notesCatalogue=allStudyNotes(),query=(ui.noteSearch||'').trim().toLowerCase();
+  const p=profile(),notesCatalogue=allStudyNotes(),query=(ui.noteSearch||'').trim().toLowerCase(),inventory=buildCurriculumInventory();
   const matched=function(items,getText){return items.filter(function(item){return !query||getText(item).toLowerCase().includes(query);});};
   const guides=matched(INTEGRATED_TEACHING_GUIDES,function(g){return g.title+' '+g.core+' '+g.steps.join(' ')+' '+g.example+' '+g.formula+' '+g.trap+' '+g.memory;});
   const formulas=matched(FORMULAS,function(f){return f.name+' '+f.formula+' '+f.topic+' '+f.meaning+' '+f.trap;});
@@ -862,6 +921,23 @@ function renderNotes() {
   const mapSection='<section class="unified-notes-section" id="notes-mind-maps"><div class="notes-section-heading"><div><div class="eyebrow">04 · MIND MAPS AND VISUAL RECALL</div><h3>Connected concepts and model-selection maps</h3><p>Open a map to see the relationship between ideas, the memory hook and the takeaway.</p></div><span class="badge blue">'+maps.length+' / '+VISUAL_MAPS.length+' maps</span></div><div class="visual-maps-grid unified-visual-maps">'+maps.map(renderUnifiedMap).join('')+(maps.length?'':'<div class="empty-state"><h3>No maps match</h3><p>Try searching for a model or concept.</p></div>')+'</div><div class="notes-section-heading notes-graphs-heading"><div><div class="eyebrow">ILLUSTRATIVE GRAPHS</div><h3>See how assumptions move value</h3><p>These graphs are illustrative applications of the valuation relationships, not copied textbook exhibits.</p></div></div><div class="learning-charts-grid">'+renderGordonSensitivityGraph()+renderGrowthFadeGraph()+'</div></section>';
   const exampleSection='<section class="unified-notes-section" id="notes-examples"><div class="notes-section-heading"><div><div class="eyebrow">05 · EXAMPLES AND EXHIBIT LESSONS</div><h3>Applying the ideas</h3><p>Curriculum examples are summarized for their analytical lesson without reproducing full textbook passages or exhibits.</p></div><span class="badge muted">'+savedExamples.length+' / '+EXAMPLE_EXHIBIT_NOTES.length+' examples</span></div><div class="notes-module-groups">'+(savedExamples.length?savedExamples.map(renderStudyNoteCard).join(''):'<div class="empty-state"><h3>No examples match</h3><p>Try a broader keyword.</p></div>')+'</div></section>';
   const personalSection='<section class="unified-notes-section" id="notes-personal"><div class="notes-section-heading"><div><div class="eyebrow">06 · YOUR PRIVATE STUDY NOTES</div><h3>Personal notes and bookmarked questions</h3><p>Saved to the active learner profile in this browser.</p></div></div><details class="personal-notes-details"><summary>Open personal notes and bookmarks</summary><div class="grid grid-2" style="margin-top:14px"><div class="card"><div class="card-header"><div><h3 class="card-title">Bookmarks</h3><div class="card-subtitle">'+p.bookmarks.length+' saved questions</div></div></div><div class="list">'+bookmarks+'</div></div><div class="card"><div class="card-header"><div><h3 class="card-title">Write a personal note</h3><div class="card-subtitle">Private to '+esc(state.activeProfile)+' on this device.</div></div></div><form id="noteForm"><div class="field-group"><label class="label" for="noteTitle">Note title</label><input class="field" id="noteTitle" required placeholder="e.g. Why FCFF pairs with WACC"></div><div class="field-group"><label class="label" for="noteTopic">Learning module</label><select class="select" id="noteTopic">'+MODULES.map(function(m){return '<option value="'+m.id+'">'+esc('LM '+m.no+' · '+m.title)+'</option>';}).join('')+'</select></div><div class="field-group"><label class="label" for="noteText">Your note</label><textarea class="textarea" id="noteText" required placeholder="Capture a misconception, exam trap or worked step."></textarea></div><button class="btn" type="submit">Save personal note</button></form></div></div><div class="card" style="margin-top:15px"><h3 class="card-title">Saved personal notes</h3>'+personal+'</div></details></section>';
+  const inventoryText='<section class="unified-notes-section" id="notes-source-inventory"><div class="notes-section-heading"><div><div class="eyebrow">07 · SOURCE-CHECKED CURRICULUM INVENTORY</div><h3>Examples, exhibits and end-of-chapter questions</h3><p>Generated from source headings and question ranges in your locally indexed PDF. Open an entry to view its original page or full set. The public repository contains references, not the full copyrighted passages.</p></div><span class="badge '+(inventory.indexed?'green':'muted')+'">'+(inventory.indexed?'Local source indexed':'Source not indexed')+'</span></div>'+
+  (inventory.indexed
+    ? '<div class="curriculum-inventory-stats"><div><strong>'+inventory.examples.length+'</strong><span>Example headings</span></div><div><strong>'+inventory.exhibits.length+'</strong><span>Exhibit captions</span></div><div><strong>'+inventory.questionCount+' / '+inventory.expectedQuestionCount+'</strong><span>EOC question blocks parsed</span></div><div><strong>'+inventory.sets.length+'</strong><span>Source-defined item sets</span></div><div><strong>'+inventory.standalone.length+'</strong><span>Standalone EOC questions</span></div></div>'+
+      '<div class="curriculum-inventory-tools"><input class="field" id="curriculumInventorySearch" placeholder="Search examples, exhibits, modules or question ranges…" value="'+esc(ui.curriculumInventorySearch||ui.noteSearch||'')+'"><select class="select" id="curriculumInventoryType"><option value="all">All source material</option><option value="example" '+(ui.curriculumInventoryType==='example'?'selected':'')+'>Examples</option><option value="exhibit" '+(ui.curriculumInventoryType==='exhibit'?'selected':'')+'>Exhibits</option><option value="set" '+(ui.curriculumInventoryType==='set'?'selected':'')+'>Item sets</option><option value="standalone" '+(ui.curriculumInventoryType==='standalone'?'selected':'')+'>Standalone questions</option></select></div>'+
+      (function(){
+        const query=(ui.curriculumInventorySearch||ui.noteSearch||'').trim().toLowerCase(),kind=ui.curriculumInventoryType||'all';
+        const matches=function(x){return !query||([x.title,x.module,x.printedPage,x.number,x.from,x.to].join(' ').toLowerCase().includes(query)||('LM '+getModule(x.module).no).toLowerCase().includes(query));};
+        const examples=inventory.examples.filter(function(x){return (kind==='all'||kind==='example')&&matches(x);});
+        const exhibits=inventory.exhibits.filter(function(x){return (kind==='all'||kind==='exhibit')&&matches(x);});
+        const sets=inventory.sets.filter(function(x){return (kind==='all'||kind==='set')&&matches(x);});
+        const standalone=inventory.standalone.filter(function(x){return (kind==='all'||kind==='standalone')&&matches(x);});
+        const group=function(title,items,render){return items.length?'<details class="source-inventory-group" open><summary>'+title+' <span class="badge muted">'+items.length+'</span><span class="study-note-chevron">＋</span></summary><div class="source-inventory-list">'+items.map(render).join('')+'</div></details>':'';};
+        const standalones=standalone.map(function(x){return '<div class="source-inventory-row"><div class="source-inventory-number">LM '+getModule(x.module).no+'</div><div class="source-inventory-main"><strong>'+esc(x.title)+'</strong><small>Printed p. '+x.printedPage+' · PDF p. '+x.pdfPage+' · standalone question according to the source range</small></div><button class="btn secondary small" data-action="open-source-location" data-module="'+esc(x.module)+'" data-printed-page="'+x.printedPage+'">Open original page →</button></div>';}).join('');
+        return group('Examples',examples,renderCurriculumInventoryRecord)+group('Exhibits',exhibits,renderCurriculumInventoryRecord)+group('Source-defined item sets',sets,renderQuestionSetInventoryRecord)+(standalone.length?'<details class="source-inventory-group"><summary>Standalone EOC questions <span class="badge muted">'+standalone.length+'</span><span class="study-note-chevron">＋</span></summary><div class="source-inventory-list">'+standalones+'</div></details>':'')+(!examples.length&&!exhibits.length&&!sets.length&&!standalone.length?'<div class="empty-state"><h3>No source entries match this search</h3><p>Try another term or filter.</p></div>':'');
+      })()
+    : '<div class="curriculum-coverage-strip muted-coverage"><strong>Index the supplied curriculum to populate this inventory.</strong><span>The local Source Vault will enumerate every detected Example and Exhibit heading, all '+inventory.expectedQuestionCount+' numbered EOC questions, and the source-defined group ranges. Full source text remains in your browser.</span><button class="btn secondary small" data-action="nav" data-page="source">Open Source Vault →</button></div>')+'</section>';
+
   const sourceArchive=ui.sourcePages||[];
   const sourceQuery=(ui.noteSearch||'').trim().toLowerCase();
   const sourceType=ui.notesSourceType||'all';
@@ -878,7 +954,7 @@ function renderNotes() {
   const solutionPageCount=sourceArchive.filter(function(page){return page.type==='Solutions';}).length;
   const examplePageCount=sourceArchive.filter(function(page){return page.type==='Curriculum text'&&/\bEXAMPLE\s+\d+\b/i.test(page.text||'');}).length;
   const exhibitPageCount=sourceArchive.filter(function(page){return page.type==='Curriculum text'&&/\bEXHIBIT\s+\d+\b/i.test(page.text||'');}).length;
-  const sourceArchiveSection='<section class="unified-notes-section" id="notes-source-pages"><div class="notes-section-heading"><div><div class="eyebrow">07 · FULL CURRICULUM SOURCE PAGES</div><h3>Examples, exhibits, full passages and end-of-chapter practice</h3><p>These are page texts extracted from your own PDF and kept in this browser. Full source passages remain intact on each page; shared case passages are also mapped to questions in Question Bank. Search above filters these source pages alongside the other study material.</p></div><span class="badge muted">'+sourceArchive.length+' / 461 pages cached</span></div>'+
+  const sourceArchiveSection='<section class="unified-notes-section" id="notes-source-pages"><div class="notes-section-heading"><div><div class="eyebrow">08 · FULL CURRICULUM SOURCE PAGES</div><h3>Examples, exhibits, full passages and end-of-chapter practice</h3><p>These are page texts extracted from your own PDF and kept in this browser. Full source passages remain intact on each page; shared case passages are also mapped to questions in Question Bank. Search above filters these source pages alongside the other study material.</p></div><span class="badge muted">'+sourceArchive.length+' / 461 pages cached</span></div>'+
   '<div class="source-inventory-stats"><div><strong>'+curriculumPageCount+'</strong><span>Learning text pages</span></div><div><strong>'+examplePageCount+'</strong><span>Pages with Example headings</span></div><div><strong>'+exhibitPageCount+'</strong><span>Pages with Exhibit headings</span></div><div><strong>'+practicePageCount+'</strong><span>Practice-problem pages</span></div><div><strong>'+solutionPageCount+'</strong><span>Solution pages</span></div></div>'+
   (sourceArchive.length&&curriculumPageCount===0?'<div class="callout blue">This browser currently has the earlier practice/solution-only source archive. The full curriculum pages, including example and exhibit pages, have not been indexed yet. Open Settings → Source Vault and import the supplied PDF once to add the remaining pages.</div>':'')+
   '<div class="toolbar"><select class="select" id="notesSourceType"><option value="all">All curriculum pages</option><option value="Curriculum text" '+(sourceType==='Curriculum text'?'selected':'')+'>Learning text / examples / exhibits</option><option value="Practice problems" '+(sourceType==='Practice problems'?'selected':'')+'>End-of-chapter practice</option><option value="Solutions" '+(sourceType==='Solutions'?'selected':'')+'>Official solutions</option></select><span class="notes-total">'+sourceMatches.length+' matching pages</span></div>'+
@@ -886,8 +962,8 @@ function renderNotes() {
   (sourceMatches.length>sourcePageSize?'<div class="notes-source-pagination"><button class="btn secondary small" data-action="notes-source-prev" '+(ui.notesSourceIndex===0?'disabled':'')+'>← Previous pages</button><span>Page '+(ui.notesSourceIndex+1)+' of '+sourcePageCount+'</span><button class="btn small" data-action="notes-source-next" '+(ui.notesSourceIndex>=sourcePageCount-1?'disabled':'')+'>Next pages →</button></div>':'')+
   '<div class="local-source-note">The source vault indexes the supplied edition locally. It does not bundle or publish the copyrighted PDF or complete curriculum text as public website assets.</div></section>';
   return sectionHeader('STUDY LIBRARY','Detailed Notes · All in one place','One searchable Equity Valuation library combining source notes, expanded explanations, formulas, mind maps, graphs, example lessons, personal notes and bookmarks. Notes are study aids and summaries; they do not reproduce full curriculum passages.')+
-    '<div class="unified-notes-toolbar"><div class="learning-library-toolbar"><input class="field" id="studyNoteSearch" placeholder="Search all notes, formulas, variables, maps and examples…" value="'+esc(ui.noteSearch||'')+'"><span class="notes-total">'+notesCatalogue.length+' source notes · '+INTEGRATED_TEACHING_GUIDES.length+' guides · '+FORMULAS.length+' formulas · '+VISUAL_MAPS.length+' maps</span></div><div class="notes-jump-links"><a href="#notes-topic-library">Detailed notes</a><a href="#notes-teaching-guides">Expanded guides</a><a href="#notes-formulas">Formula reference</a><a href="#notes-mind-maps">Mind maps & graphs</a><a href="#notes-examples">Examples</a><a href="#notes-personal">Personal notes</a><a href="#notes-source-pages">Full source pages</a></div></div>'+
-    '<div class="unified-notes-sections">'+topicSection+guideSection+formulaSection+mapSection+exampleSection+personalSection+sourceArchiveSection+'</div>';
+    '<div class="unified-notes-toolbar"><div class="learning-library-toolbar"><input class="field" id="studyNoteSearch" placeholder="Search all notes, formulas, variables, maps and examples…" value="'+esc(ui.noteSearch||'')+'"><span class="notes-total">'+notesCatalogue.length+' source notes · '+INTEGRATED_TEACHING_GUIDES.length+' guides · '+FORMULAS.length+' formulas · '+VISUAL_MAPS.length+' maps</span></div><div class="notes-jump-links"><a href="#notes-topic-library">Detailed notes</a><a href="#notes-teaching-guides">Expanded guides</a><a href="#notes-formulas">Formula reference</a><a href="#notes-mind-maps">Mind maps & graphs</a><a href="#notes-examples">Examples</a><a href="#notes-personal">Personal notes</a><a href="#notes-source-inventory">Curriculum inventory</a><a href="#notes-source-pages">Full source pages</a></div></div>'+
+    '<div class="unified-notes-sections">'+topicSection+guideSection+formulaSection+mapSection+exampleSection+personalSection+inventoryText+sourceArchiveSection+'</div>';
 }
 
 function cleanSourceLine(line) {
@@ -1174,7 +1250,7 @@ async function importPDF(file) {
       pages.push({id:p.module+'-'+p.type.replace(/\W/g,'').toLowerCase()+'-'+p.printedPage,module:p.module,printedPage:p.printedPage,pdfPage:pdfPage,type:p.type,text:linesFromItems(text.items)});
       if(i%4===0) {const status=document.getElementById('importStatus'), percent=document.getElementById('importPercent'),bar=document.getElementById('importBar');if(status)status.textContent=ui.importStatus;if(percent)percent.textContent=ui.importPercent+'%';if(bar)bar.style.width=ui.importPercent+'%';await new Promise(function(resolve){setTimeout(resolve,0);});}
     }
-    await saveSourcePages(pages);ui.sourcePages=pages;ui.sourceBlockIndex=null;ui.sourcePageIndex=0;ui.notesSourceIndex=0;
+    await saveSourcePages(pages);ui.sourcePages=pages;ui.sourceBlockIndex=null;ui.curriculumInventoryCache=null;ui.sourcePageIndex=0;ui.notesSourceIndex=0;
     const parsed=buildBookQuestionCandidates(pages);mergeImportedBookQuestions(parsed);
     state.shared.sourceMeta=sourceArchiveMeta(file.name,pdf.numPages,pages,parsed.stats,new Date().toISOString());
     saveState();ui.importPercent=100;ui.importStatus='Import complete';notify('Indexed '+pages.length+' curriculum pages, including practice problems and solutions. Parsed '+parsed.stats.extracted+' of '+parsed.stats.expected+' question candidates; all source items remain flagged for review.'); 
@@ -1211,6 +1287,16 @@ function handleClick(e) {
   const target=e.target.closest('[data-action]');if(!target)return;
   const a=target.dataset.action, d=target.dataset;
   if(a==='nav'){ui.query='';if(d.page==='questions'&&d.module){ui.filterModule=d.module;ui.questionQuery='';}navigate(d.page,{module:d.module||null});if(d.page==='questions'&&d.module){ui.filterModule=d.module;renderApp();}return;}
+  if(a==='open-source-location'){
+    const page=ui.sourcePages.find(function(p){return p.module===d.module&&Number(p.printedPage)===Number(d.printedPage)&&p.type==='Curriculum text';});
+    ui.page='source';ui.sourceType='all';ui.sourceSearch='';ui.sourcePageIndex=page?Math.max(0,Math.floor(ui.sourcePages.filter(function(p){return true;}).findIndex(function(p){return p.id===page.id;})/8)):0;ui.sourceExpanded=page?page.id:null;renderApp();
+    if(!page)notify('The original page text is not indexed in this browser. Open Source Vault and import the supplied PDF.',true);
+    else setTimeout(function(){document.querySelector('.source-page-text')?.scrollIntoView({behavior:'smooth',block:'start'});},0);
+    return;
+  }
+  if(a==='find-item-set'){
+    ui.page='questions';ui.query='';ui.questionQuery=d.setTitle||d.setId||'';ui.filterModule='all';ui.filterType='all';ui.filterStatus='all';ui.onlyWeak=false;renderApp();window.scrollTo(0,0);return;
+  }
   if(a==='subject-detail'){ui.currentSubject=d.subject||'equity';ui.page='subjectdetail';renderAppSafe();window.scrollTo(0,0);return;}
   if(a==='menu'){document.getElementById('sidebar')?.classList.toggle('open');return;}
   if(a==='clear-note-search'){ui.noteSearch='';ui.notesSourceIndex=0;renderApp();return;}
@@ -1231,7 +1317,7 @@ function handleClick(e) {
   if(a==='notes-source-next'){ui.notesSourceIndex=(ui.notesSourceIndex||0)+1;renderApp();document.getElementById('notes-source-pages')?.scrollIntoView({block:'start'});return;}
   if(a==='source-prev'){ui.sourcePageIndex=Math.max(0,ui.sourcePageIndex-1);renderApp();return;}
   if(a==='source-next'){ui.sourcePageIndex+=1;renderApp();return;}
-  if(a==='clear-source'){if(confirm('Delete extracted source-page text from this browser? This does not delete the original PDF on your device.'))clearSourcePages().then(function(){ui.sourcePages=[];state.shared.sourceMeta=null;saveState();renderApp();notify('Local source text cleared');});return;}
+  if(a==='clear-source'){if(confirm('Delete extracted source-page text from this browser? This does not delete the original PDF on your device.'))clearSourcePages().then(function(){ui.sourcePages=[];ui.sourceBlockIndex=null;ui.curriculumInventoryCache=null;state.shared.sourceMeta=null;saveState();renderApp();notify('Local source text cleared');});return;}
   if(a==='export-source'){exportSource();return;}
   if(a==='export-data'){exportJSON({profileName:state.activeProfile,exportedAt:new Date().toISOString(),profile:profile()},'cfa-equity-'+state.activeProfile.toLowerCase().replace(/\s+/g,'-')+'-backup.json');notify('Learner backup exported');return;}
   if(a==='copy-text'){copyToClipboard(d.text||'').then(function(){notify('Copied to clipboard');}).catch(function(err){notify(err.message||'Could not copy text. Select and copy it manually.',true);});return;}
@@ -1287,6 +1373,7 @@ document.addEventListener('change',function(e){
   if(e.target.id==='filterStatus'){ui.filterStatus=e.target.value;renderApp();return;}
   if(e.target.id==='sourceType'){ui.sourceType=e.target.value;ui.sourcePageIndex=0;renderApp();return;}
   if(e.target.id==='notesSourceType'){ui.notesSourceType=e.target.value;ui.notesSourceIndex=0;renderApp();return;}
+  if(e.target.id==='curriculumInventoryType'){ui.curriculumInventoryType=e.target.value;renderApp();return;}
   if(e.target.id==='curriculumStatus'){ui.curriculumStatus=e.target.value;renderApp();return;}
   if(e.target.name==='answer'){ui.selectedAnswer=e.target.value;document.querySelectorAll('.answer-option').forEach(function(n){n.classList.toggle('selected',n.querySelector('input')?.checked);});const btn=document.querySelector('[data-action="submit-answer"]');if(btn)btn.disabled=false;return;} if(e.target.id==='constructedAnswer'){ui.constructedAnswer=e.target.value;const btn=document.querySelector('[data-action="submit-answer"]');if(btn)btn.disabled=!e.target.value.trim();return;} if(e.target.id==='examConstructedAnswer'){if(ui.exam){const q=getQuestion(ui.exam.ids[ui.exam.index]);ui.exam.answers[q.id]=e.target.value;}return;}
   if(e.target.name==='examAnswer'){if(ui.exam){const q=getQuestion(ui.exam.ids[ui.exam.index]);ui.exam.answers[q.id]=e.target.value;renderApp();}return;}
@@ -1297,6 +1384,7 @@ document.addEventListener('input',function(e){
   if(e.target.id==='sourceSearch'){ui.sourceSearch=e.target.value;ui.sourcePageIndex=0;const pos=e.target.selectionStart;renderApp();const inp=document.getElementById('sourceSearch');if(inp){inp.focus();inp.setSelectionRange(pos,pos);}return;}
   if(e.target.id==='formulaSearch'){ui.formulaQuery=e.target.value;const pos=e.target.selectionStart;renderApp();const inp=document.getElementById('formulaSearch');if(inp){inp.focus();inp.setSelectionRange(pos,pos);}return;}
   if(e.target.id==='studyNoteSearch'){ui.noteSearch=e.target.value;ui.notesSourceIndex=0;const pos=e.target.selectionStart;renderApp();const inp=document.getElementById('studyNoteSearch');if(inp){inp.focus();inp.setSelectionRange(pos,pos);}return;}
+  if(e.target.id==='curriculumInventorySearch'){ui.curriculumInventorySearch=e.target.value;renderApp();const inp=document.getElementById('curriculumInventorySearch');if(inp){inp.focus();inp.setSelectionRange(ui.curriculumInventorySearch.length,ui.curriculumInventorySearch.length);}return;}
   if(e.target.id==='curriculumSearch'){ui.curriculumQuery=e.target.value;const pos=e.target.selectionStart;renderApp();const inp=document.getElementById('curriculumSearch');if(inp){inp.focus();inp.setSelectionRange(pos,pos);}return;}
 });
 document.addEventListener('keydown',function(e){
