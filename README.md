@@ -4,6 +4,8 @@ A CFA Level II 2026 study dashboard for all ten topic areas, with integrated sou
 
 ## Current application
 
+- All-in-one Detailed Notes library combining source-organized notes, expanded teaching guides, formula explanations with variable definitions and worked illustrations, mind maps, sensitivity graphs, example lessons, personal notes and bookmarks.
+
 - Responsive study dashboard with light/dark theme and coverage of all ten 2026 Level II topic areas.
 - Per-learner subject status tracking for Not started, In progress, Needs revision, and Completed.
 - Six learning modules, topic guides, and a searchable curriculum explorer.

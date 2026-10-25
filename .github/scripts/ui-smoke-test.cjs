@@ -115,6 +115,19 @@ const nav = page => click('.sidebar .nav-item[data-page="' + page + '"]');
   click('[data-action="nav"][data-page="notes"]');
   assert(window.document.querySelectorAll('.study-note-card').length >= 90,
     'The main Notes page should include all source-derived, deeper and illustration notes.');
+  assert(window.document.querySelectorAll('.integrated-guide-card').length === 12,
+    'Detailed Notes should include twelve expanded teaching guides.');
+  assert(window.document.querySelectorAll('.unified-formula-card').length === 13,
+    'Detailed Notes should include the formula reference with variable definitions and worked illustrations.');
+  assert(window.document.querySelectorAll('.unified-visual-map').length === 9,
+    'Detailed Notes should include all nine mind maps in the same view.');
+  assert(window.document.querySelectorAll('.learning-chart-card').length === 2,
+    'Detailed Notes should include both illustrative sensitivity graphs.');
+  for (const id of ['notes-topic-library','notes-teaching-guides','notes-formulas','notes-mind-maps','notes-examples','notes-personal']) {
+    assert(window.document.getElementById(id), 'Unified notes section is missing: ' + id);
+  }
+  assert(window.document.querySelector('#studyNoteSearch')?.placeholder.includes('all notes, formulas, variables, maps'),
+    'Detailed Notes should use one search box across all study content.');
   assert(visibleText().includes('SSEI') && visibleText().includes('Curriculum'),
     'Notes must show inline source labels.');
   const noteSearch = window.document.getElementById('studyNoteSearch');
