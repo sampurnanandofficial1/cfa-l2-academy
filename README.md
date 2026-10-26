@@ -65,3 +65,8 @@ The curriculum outline and printed-page mappings are based on the CFA Program Cu
 ### Verified item-set grouping
 
 Item sets now use only explicit source question-range headings from the locally indexed curriculum pages. A group is created only if the shared passage text is non-empty. The passage and complete question stems/choices display separately. Where the source passage cannot be verified, the item is marked as unverified rather than assigned a similar-sounding or generated case. The PDF is not embedded in the public repository; exact source text requires the learner's locally indexed copy.
+
+
+### Local source content and visibility
+
+The Source Vault parses the learner-selected PDF in the browser and stores extracted page text in IndexedDB on that browser origin. The app does not upload the PDF or source text to GitHub. The current repository and GitHub Pages URL are public, however, so all committed code and bundled assets can be read by others. For personal-only access to the hosted site, use a host and plan with private-site access control or keep an offline local copy.

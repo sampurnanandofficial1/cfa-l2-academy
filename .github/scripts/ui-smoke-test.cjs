@@ -262,6 +262,15 @@ const nav = page => click('.sidebar .nav-item[data-page="' + page + '"]');
 
   click('[data-action="nav"][data-page="questions"]');
   assert(visibleText().includes('60 total available'), 'The question bank should contain 60 questions.');
+  const emptySourceStatus = window.document.querySelector('.curriculum-coverage-strip');
+  assert(emptySourceStatus?.textContent.includes('Load your personal source copy'),
+    'An empty local source archive should show a clear local-import status, not a copyright/public-site error.');
+  assert(!visibleText().includes('The public site does not embed the copyrighted curriculum text.'),
+    'The obsolete copyright warning should not be shown as an app error.');
+  click('.curriculum-coverage-strip [data-action="nav"][data-page="source"]');
+  assert(window.document.getElementById('sourceFile'),
+    'The Question Bank local-import action should open Source Vault.');
+  nav('questions');
   const builtInSets = [...window.document.querySelectorAll('.question-set-card')];
   assert(builtInSets.length > 11, 'The bank should group genuine shared-vignette questions and keep independent questions standalone.');
   let displayedQids = [];
