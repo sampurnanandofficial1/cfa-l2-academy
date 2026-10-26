@@ -270,7 +270,8 @@ const nav = page => click('.sidebar .nav-item[data-page="' + page + '"]');
   click('.curriculum-coverage-strip [data-action="nav"][data-page="source"]');
   assert(window.document.getElementById('sourceFile'),
     'The Question Bank local-import action should open Source Vault.');
-  nav('questions');
+  nav('practice');
+  click('[data-action="nav"][data-page="questions"]');
   const builtInSets = [...window.document.querySelectorAll('.question-set-card')];
   assert(builtInSets.length > 11, 'The bank should group genuine shared-vignette questions and keep independent questions standalone.');
   let displayedQids = [];
